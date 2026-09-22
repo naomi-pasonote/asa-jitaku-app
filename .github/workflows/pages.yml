@@ -28,14 +28,19 @@ jobs:
 
       - name: Compile shortcut
         run: |
-          ./cherri shortcuts/asa_jitaku_renkei.cherri --skip-sign
-          test -s shortcuts/asa_jitaku_renkei_unsigned.shortcut
+          ./cherri shortcuts/asa_jitaku_renkei.cherri --debug --skip-sign
+          echo "Compiled files:"
+          find shortcuts -maxdepth 1 -type f -print
 
       - name: Sign shortcut with HubSign
         run: |
           python3 - <<'PY'
           import json, pathlib, urllib.request, sys
-          src = pathlib.Path("shortcuts/asa_jitaku_renkei_unsigned.shortcut")
+          candidates = list(pathlib.Path("shortcuts").glob("*_unsigned.shortcut"))
+          if not candidates:
+              print("Unsigned shortcut was not produced")
+              sys.exit(1)
+          src = candidates[0]
           dst = pathlib.Path("shortcuts/asa_jitaku_renkei.shortcut")
           payload = json.dumps({
               "shortcutName": "asa_jitaku_renkei",
