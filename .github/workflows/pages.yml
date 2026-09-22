@@ -74,6 +74,8 @@ jobs:
         run: |
           mkdir -p site/shortcuts
           cp shortcuts/asa_jitaku_renkei.shortcut site/shortcuts/asa-jitaku-renkei.shortcut
+          cp shortcuts/asa_jitaku_renkei.shortcut "site/shortcuts/朝じたく連携.shortcut"
+          (cd site/shortcuts && zip -q asa-jitaku-renkei.zip "朝じたく連携.shortcut")
           cp -r web/. site/
 
       - uses: actions/configure-pages@v5
