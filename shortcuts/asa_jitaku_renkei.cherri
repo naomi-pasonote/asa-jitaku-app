@@ -1,0 +1,72 @@
+#include 'actions/calendar'
+#include 'actions/text'
+
+#define name 朝じたく連携
+#define color pink
+#define glyph alarmClock
+#define version 26
+
+// 朝じたく連携（1本方式）
+// 入力(JSON): {"mode":"ping|set|stop|clear","rid":"...","pattern":"名前","times":["HH:mm",...]}
+// 「朝じたく｜」で始まるラベルのアラームだけを操作する。他のアラームには触れない。
+// 完了すると、呼び出し元(x-callback-url)へ成功が返る。失敗・中断はエラー/キャンセルで返る。
+
+@rawInput = getText(ShortcutInput)
+@req = getDictionary(@rawInput)
+@modeValue = @req['mode']
+@mode = getText(@modeValue)
+@alarms = getAlarms()
+@done = 0
+
+if @mode == "ping" {
+    @pingCount = count(@alarms)
+    output("ok|ping|{@pingCount}")
+}
+
+if @mode == "stop" {
+    for alarm in @alarms {
+        @rawName = getName(@alarm)
+        @alarmName = getText(@rawName)
+        if @alarmName beginsWith "朝じたく｜" {
+            turnOffAlarm(@alarm, false)
+            @done = @done + 1
+        }
+    }
+    output("ok|stop|{@done}")
+}
+
+if @mode == "clear" {
+    for alarm in @alarms {
+        @rawName = getName(@alarm)
+        @alarmName = getText(@rawName)
+        if @alarmName beginsWith "朝じたく｜" {
+            deleteAlarm(@alarm)
+            @done = @done + 1
+        }
+    }
+    output("ok|clear|{@done}")
+}
+
+if @mode == "set" {
+    // 1) 朝じたく用の古いアラームだけを削除（増殖防止）
+    for alarm in @alarms {
+        @rawName = getName(@alarm)
+        @alarmName = getText(@rawName)
+        if @alarmName beginsWith "朝じたく｜" {
+            deleteAlarm(@alarm)
+        }
+    }
+    // 2) 新しいアラームを作成（非繰り返し・スヌーズなし）
+    // 時刻はPWA側で計算済みの "HH:mm" 文字列(times)をそのまま使う。
+    @patternValue = @req['pattern']
+    @pattern = getText(@patternValue)
+    @timesList = @req['times']
+    for timeValue in @timesList {
+        @timeText = getText(@timeValue)
+        createAlarm("朝じたく｜{@pattern}", @timeText, false)
+        @done = @done + 1
+    }
+    output("ok|set|{@done}")
+}
+
+output("error|unknown-mode")
