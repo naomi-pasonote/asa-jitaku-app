@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ja"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="朝じたく">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#FBF5EA">
+<link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon-180.png">
+<title>朝じたく</title>
+<style>
+:root{--iv:#FBF5EA;--rose:#C9667E;--deep:#A34A66;--blush:#F4DCE0;--ink:#4A3438;--mute:#8C7379;--line:#E8D9D3}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--iv);color:var(--ink);font-family:"Hiragino Sans","Yu Gothic",sans-serif;font-size:20px}
+body{padding:env(safe-area-inset-top) 0 calc(84px + env(safe-area-inset-bottom))}
+h1{font-family:"Hiragino Mincho ProN","Yu Mincho",serif;font-weight:600;font-size:34px;margin:18px 20px 4px;color:var(--deep);letter-spacing:.08em}
+h2{font-family:"Hiragino Mincho ProN",serif;font-size:22px;margin:22px 20px 8px;color:var(--deep)}
+.sub{margin:0 20px 14px;color:var(--mute);font-size:16px}
+main{max-width:560px;margin:0 auto}
+button{font:inherit;color:inherit;border:0;cursor:pointer}
+.wake{display:block;width:calc(100% - 40px);margin:6px 20px;padding:34px 10px;border-radius:28px;background:var(--rose);color:#fff;font-size:34px;font-weight:600;letter-spacing:.1em;box-shadow:0 8px 20px #c9667e40}
+.wake:active{background:var(--deep)}
+.card{margin:10px 20px;padding:16px 18px;border-radius:20px;background:#fff;border:1px solid var(--line)}
+.st b{font-size:22px;color:var(--deep)}.st div{margin-top:4px;font-size:18px}.st small{display:block;margin-top:6px;color:var(--mute);font-size:14px}
+.pat{display:flex;width:calc(100% - 40px);margin:10px 20px;padding:20px 18px;border-radius:22px;background:#fff;border:2px solid var(--line);text-align:left;align-items:center;justify-content:space-between}
+.pat.on{border-color:var(--rose);background:var(--blush)}
+.pat b{font-size:24px;display:block}.pat span{color:var(--mute);font-size:17px}
+.pat i{font-style:normal;font-size:26px;color:var(--rose)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:0 20px}
+.chip{flex:1 0 21%;padding:14px 0;border-radius:16px;background:#fff;border:2px solid var(--line);font-size:19px}
+.chip.on{background:var(--rose);border-color:var(--rose);color:#fff}
+.btn{padding:14px 20px;border-radius:16px;background:#fff;border:2px solid var(--rose);color:var(--deep);font-size:18px;margin:6px 6px 0 0}
+.btn.f{background:var(--rose);color:#fff}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:#fffdf8;border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;padding:16px 0 14px;background:none;font-size:18px;color:var(--mute)}
+nav button.on{color:var(--deep);font-weight:700}
+.g{display:none}.g.on{display:block}
+label{display:block;margin:12px 0 4px;font-size:16px;color:var(--mute)}
+input{width:100%;font:inherit;font-size:22px;padding:12px;border-radius:12px;border:2px solid var(--line);background:var(--iv);color:var(--ink)}
+.ov{position:fixed;inset:0;background:#4a34388c;display:none;align-items:flex-end;z-index:9}.ov.on{display:flex}
+.sheet{width:100%;max-width:560px;margin:0 auto;background:var(--iv);border-radius:26px 26px 0 0;padding:20px 20px calc(24px + env(safe-area-inset-bottom))}
+ol{padding-left:22px;margin:6px 0;font-size:17px;line-height:1.7}li{margin:4px 0}
+code{background:var(--blush);padding:1px 6px;border-radius:6px;font-size:15px}
+</style></head><body><main>
+<section class="g on" id="home">
+<h1>朝じたく</h1><p class="sub" id="hello"></p>
+<div class="card" id="nt" style="display:none"></div>
+<button class="wake" id="wake">起きました</button>
+<div class="card st" id="st"></div>
+<h2>今夜のパターン</h2><div id="pl"></div>
+<h2>今日だけ時刻をずらす</h2><div class="chips" id="ch"></div>
+<p class="sub" style="margin-top:10px">ずらした分は、次に鳴る朝だけ有効です。</p>
+</section>
+<section class="g" id="pats"><h1>パターン</h1><p class="sub">タップで編集できます。</p><div id="pl2"></div>
+<button class="wake" style="font-size:24px;padding:20px" id="add">＋ パターンを追加</button></section>
+<section class="g" id="set"><h1>設定</h1>
+<div class="card"><b>iPhoneのショートカット連携</b>
+<p id="ss" style="font-size:16px;margin:8px 0">状態を確認中…</p>
+<p style="font-size:15px;color:var(--mute);margin:6px 0">最初に1回だけ「ショートカットを追加」を押して、追加を許可してください。追加後に「連携テスト」を押します。</p>
+<a class="btn f" id="imp2" style="display:inline-block;text-decoration:none">ショートカットを追加</a><button class="btn" id="pg">連携テスト</button>
+<p id="rd" style="font-size:15px;margin:8px 0 0"></p>
+<p style="font-size:15px;color:var(--mute);margin:12px 0 4px">うまく開けないとき（予備）</p>
+<a class="btn" id="dl" download target="_blank" rel="noopener" style="display:inline-block;text-decoration:none">ファイルを直接開く</a><button class="btn" id="cp">URLをコピー</button>
+<p id="fu" style="font-size:13px;word-break:break-all;color:var(--mute);margin:6px 0 0;-webkit-user-select:text;user-select:text"></p></div>
+<div class="card"><b>パターンの読み込み・書き出し</b><p style="font-size:15px;color:var(--mute);margin:6px 0">パターンはこのiPhoneの中だけに保存されます（公開されるプログラムには入っていません）。</p><textarea id="io" rows="4" style="width:100%;font-size:15px;border:2px solid var(--line);border-radius:12px;padding:10px;background:var(--iv)"></textarea><button class="btn f" id="imp">読み込む</button><button class="btn" id="exp">今の内容を表示</button></div>
+<div class="card"><b>実機テスト</b><p style="font-size:15px;color:var(--mute);margin:6px 0">2分後・4分後・6分後に「朝じたく｜テスト」のアラームを作ります。時計アプリで3つ入ったか確認してください。</p>
+<button class="btn f" id="t">テストを設定</button><button class="btn" id="tx">テスト設定を解除</button></div>
+<div class="card"><button class="btn" id="clr">朝じたくのアラームを全部消す</button><button class="btn" id="rst">パターンを全部削除</button></div>
+<div class="card" style="font-size:14px;color:var(--mute)" id="env"></div>
+</section></main>
+<div class="ov" id="ov"><div class="sheet"><b style="font-size:22px" id="ot"></b>
+<label>名前</label><input id="fn"><label>最初の時刻</label><input id="ft" type="time">
+<label>何分おき</label><input id="fg" type="number" min="1" max="60" inputmode="numeric"><label>何回（0でアラームなし）</label><input id="fc" type="number" min="0" max="20" inputmode="numeric">
+<p style="margin:14px 0 0"><button class="btn f" id="fs">保存</button><button class="btn" id="fd">削除</button><button class="btn" id="fx">閉じる</button></p></div></div>
+<nav><button data-t="home" class="on">ホーム</button><button data-t="pats">パターン</button><button data-t="set">設定</button></nav>
+<script>
+const K='asajitaku.v2',NAME='朝じたく連携',PREFIX='朝じたく｜',$=s=>document.querySelector(s);
+let S=(()=>{try{const s=JSON.parse(localStorage.getItem(K));if(s&&s.p)return s}catch(e){}return{p:[],a:null,ready:false,pend:null}})();
+const save=()=>{try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt=d=>d.getHours()+':'+String(d.getMinutes()).padStart(2,'0');
+const desc=p=>p.c?fmt(new Date(2000,0,1,...p.t.split(':')))+' ・ '+p.g+'分おき×'+p.c:'アラームなし';
+function times(p,off){const now=Date.now(),[h,m]=p.t.split(':').map(Number),d=new Date(now);d.setHours(h,m+off,0,0);if(d.getTime()<now+30000)d.setDate(d.getDate()+1);return Array.from({length:p.c},(_,i)=>d.getTime()+i*p.g*60000)}
+const hm=x=>{const d=new Date(x);return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')};
+const cbUrl=(st,rid)=>{const u=new URL(location.href);u.search='';u.hash='';u.searchParams.set('asaCallback',st);u.searchParams.set('rid',rid);return u.toString()};
+function invoke(payload,pend){
+ const rid=Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+ payload.rid=rid;payload.prefix=PREFIX;pend.rid=rid;pend.mode=payload.mode;pend.at=Date.now();S.pend=pend;S.note='';save();render();
+ location.href='shortcuts://x-callback-url/run-shortcut?name='+encodeURIComponent(NAME)+'&input=text&text='+encodeURIComponent(JSON.stringify(payload))+'&x-success='+encodeURIComponent(cbUrl('success',rid))+'&x-cancel='+encodeURIComponent(cbUrl('cancel',rid))+'&x-error='+encodeURIComponent(cbUrl('error',rid));
+}
+function setAlarms(name,ts,a){invoke({mode:'set',pattern:name,times:ts.map(hm)},{type:'set',a})}
+function arm(id,off){const p=S.p.find(x=>x.id===id);if(!p)return;const ts=times(p,off);
+ if(!ts.length){invoke({mode:'clear'},{type:'set',a:{id,off:0,f:0,l:0,n:0}});return}
+ setAlarms(p.n,ts,{id,off,f:ts[0],l:ts[ts.length-1],n:ts.length})}
+function test(){const now=Date.now(),ts=[2,4,6].map(k=>{const d=new Date(now+k*60000);d.setSeconds(0,0);return+d});setAlarms('テスト',ts,{id:'test',off:0,f:ts[0],l:ts[2],n:3})}
+const stop=()=>invoke({mode:'stop'},{type:'wake'});
+const clearAll=()=>invoke({mode:'clear'},{type:'clear'});
+const ping=()=>invoke({mode:'ping'},{type:'ping'});
+function note(t){const n=$('#nt');n.style.display=t?'block':'none';n.innerHTML=t?t+'<div><button class="btn" id="ntx" style="margin-top:8px">閉じる</button></div>':'';if(t)$('#ntx').onclick=()=>{S.pend=null;S.note='';save();render()}}
+function judge(st,res,p){
+ if(st!=='success')return st==='cancel'?'cancel':'error';
+ const pt=res.split('|'),n=/^\d+$/.test(pt[2]||'')?+pt[2]:-1;
+ if(pt[0]!=='ok'||pt[1]!==p.mode||n<0)return 'noresult';
+ if(p.mode==='set'&&n!==p.a.n)return 'mismatch';
+ return 'ok'}
+function cbHandle(){
+ const q=new URLSearchParams(location.search),st=q.get('asaCallback');if(!st)return;
+ const rid=q.get('rid'),res=q.get('result')||'',err=q.get('errorMessage')||'';history.replaceState(null,'',location.pathname);
+ const p=S.pend;
+ if(!p||p.rid!==rid){S.note='結果を反映できませんでした。この画面で送った操作と一致しません。時計アプリで確認してください。'+(navigator.standalone===false?'（Safariで開かれています。ホーム画面のアプリで確認してください）':'');save();return}
+ S.pend=null;const r=judge(st,res,p);
+ if(r!=='ok'){S.note=({cancel:'中断されました。',error:'完了しませんでした。'+(err?'（'+err+'）':''),noresult:'成功の結果が確認できなかったため、セット済み／停止済みにはしていません。時計アプリで確認してください。'+(res?'（'+res+'）':''),mismatch:'作成された件数が一致しませんでした。時計アプリで確認してください。（'+res+'）'}[r])+'表示は変えていません。';save();return}
+ if(p.type==='set'){S.a={...p.a,at:Date.now()};S.note=p.a.n?'セットしました（'+p.a.n+'個）。':'アラームなしにしました。'}
+ else if(p.type==='wake'){S.a=null;S.woke=Date.now();S.note='おはようございます。残りの朝じたくアラームを止めました。'}
+ else if(p.type==='clear'){S.a=null;S.note='朝じたくのアラームを解除しました。'}
+ else if(p.type==='ping'){S.ready=true;S.note='連携できました。'}
+ save()}
+function render(){
+ const h=new Date().getHours();$('#hello').textContent=h<5||h>=18?'おやすみ前に、パターンを1つ選びます。':'おはようございます。';
+ const a=S.a,p=a&&S.p.find(x=>x.id===a.id),pd=S.pend;
+ note(pd?'<b>結果を待っています</b>（'+({set:'セット',wake:'起きました',clear:'解除',ping:'連携テスト'}[pd.type])+'）<div style="font-size:15px;margin-top:4px">ショートカットから戻ってもこの表示が消えないときは、時計アプリで確認してください。</div>':S.note||'');
+ $('#st').innerHTML=a?(a.id==='test'?'<b>テストをセット済み</b><div>'+fmt(new Date(a.f))+' ・ '+fmt(new Date(a.l-120000))+' ・ '+fmt(new Date(a.l))+'</div>':'<b>'+esc(p?p.n:'')+'</b><div>'+(a.n?fmt(new Date(a.f))+' 〜 '+fmt(new Date(a.l))+'（'+a.n+'個）':'アラームなし')+(a.off?'　今日だけ '+(a.off>0?'+':'')+a.off+'分':'')+'</div>')+'<small>'+fmt(new Date(a.at))+' にセット済み（ショートカットの成功を確認）。</small>':S.woke&&Date.now()-S.woke<432e5?'<b>停止済み</b><div>今朝の朝じたくアラームは止めました。</div>':'<b>セット済みの朝じたくはありません</b><div>下のパターンを選んでください。</div>';
+ $('#pl').innerHTML=!S.p.length?'<p class="sub">パターンがありません。「設定」で読み込むか、「パターン」で追加してください。</p>':S.p.map(x=>'<button class="pat'+(a&&a.id===x.id?' on':'')+'" data-id="'+x.id+'"><div><b>'+esc(x.n)+'</b><span>'+desc(x)+'</span></div><i>'+(a&&a.id===x.id?'●':'○')+'</i></button>').join('');
+ $('#pl2').innerHTML=!S.p.length?'<p class="sub">まだありません。</p>':S.p.map(x=>'<button class="pat" data-e="'+x.id+'"><div><b>'+esc(x.n)+'</b><span>'+desc(x)+'</span></div><i>›</i></button>').join('');
+ $('#ch').innerHTML=[-30,-15,-10,-5,5,10,15,30].map(o=>'<button class="chip'+(a&&a.off===o?' on':'')+'" data-o="'+o+'">'+(o>0?'+':'')+o+'</button>').join('');
+ $('#rd').textContent=S.ready?'連携テスト：成功を確認済み':'連携テスト：まだ成功を確認していません';
+ $('#env').textContent='表示モード：'+(navigator.standalone?'ホーム画面アプリ':'Safari')+'　／　ショートカット名：'+NAME;
+}
+$('#pl').onclick=e=>{const b=e.target.closest('[data-id]');if(b&&!S.pend)arm(b.dataset.id,0)};
+$('#ch').onclick=e=>{const b=e.target.closest('[data-o]');if(!b||S.pend)return;if(!S.a||S.a.id==='test'){alert('先にパターンを選んでください。');return}const o=+b.dataset.o;arm(S.a.id,S.a.off===o?0:o)};
+$('#wake').onclick=stop;$('#t').onclick=test;$('#tx').onclick=clearAll;$('#pg').onclick=ping;
+const SCURL=new URL('shortcuts/asa-jitaku-renkei.shortcut',location.href).href;
+$('#imp2').href='shortcuts://import-shortcut?url='+encodeURIComponent(SCURL)+'&name='+encodeURIComponent(NAME);
+$('#dl').href=SCURL;$('#fu').textContent=SCURL;
+$('#cp').onclick=()=>{navigator.clipboard.writeText(SCURL).then(()=>alert('コピーしました。Safariのアドレス欄に貼り付けて開いてください。')).catch(()=>alert('コピーできませんでした。上のURLを長押ししてコピーしてください。'))};
+fetch(SCURL,{method:'HEAD',cache:'no-store'}).then(r=>{$('#ss').textContent=r.ok?'配布ファイル：あります（Cherri --hubsignで署名済み）':'配布ファイル：見つかりません（ビルドが失敗している可能性）'}).catch(()=>{$('#ss').textContent='配布ファイルの状態を確認できません。'});
+$('#clr').onclick=()=>{if(confirm('「朝じたく｜」ラベルのアラームを全部消します。'))clearAll()};
+$('#rst').onclick=()=>{if(confirm('パターンを全部削除します。')){S.p=[];S.a=null;save();render()}};
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('on',x===b));document.querySelectorAll('.g').forEach(g=>g.classList.toggle('on',g.id===b.dataset.t));scrollTo(0,0)});
+$('#exp').onclick=()=>{$('#io').value=JSON.stringify(S.p.map(({n,t,g,c})=>({n,t,g,c})))};
+$('#imp').onclick=()=>{try{const a=JSON.parse($('#io').value);if(!Array.isArray(a)||!a.length||!a.every(x=>typeof x.n==='string'&&typeof x.t==='string'&&Number.isFinite(x.g)&&Number.isFinite(x.c)))throw 0;S.p=a.map((x,i)=>({id:'p'+Date.now()+i,n:x.n,t:x.t,g:x.g,c:x.c}));S.a=null;save();render();$('#io').value='';alert(a.length+'件を読み込みました。')}catch(e){alert('読み込めませんでした。内容をもう一度コピーして貼り付けてください。')}};
+let eid=null;
+function edit(id){eid=id;const p=S.p.find(x=>x.id===id)||{n:'',t:'07:00',g:5,c:10};$('#ot').textContent=id?'パターンを編集':'パターンを追加';$('#fn').value=p.n;$('#ft').value=p.t||'07:00';$('#fg').value=p.g||5;$('#fc').value=p.c;$('#fd').style.display=id?'':'none';$('#ov').classList.add('on')}
+$('#pl2').onclick=e=>{const b=e.target.closest('[data-e]');if(b)edit(b.dataset.e)};$('#add').onclick=()=>edit(null);$('#fx').onclick=()=>$('#ov').classList.remove('on');
+$('#fs').onclick=()=>{const n=$('#fn').value.trim(),c=Math.max(0,Math.min(20,+$('#fc').value||0)),g=Math.max(1,Math.min(60,+$('#fg').value||5)),t=$('#ft').value;if(!n||(c&&!t)){alert('名前と時刻を入れてください。');return}
+ const o={id:eid||'p'+Date.now(),n,t:c?t:'',g:c?g:0,c};const i=S.p.findIndex(x=>x.id===o.id);i<0?S.p.push(o):S.p[i]=o;save();$('#ov').classList.remove('on');render()};
+$('#fd').onclick=()=>{if(confirm('このパターンを削除します。')){S.p=S.p.filter(x=>x.id!==eid);if(S.a&&S.a.id===eid)S.a=null;save();$('#ov').classList.remove('on');render()}};
+document.addEventListener('visibilitychange',render);
+cbHandle();render();
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script></body></html>
