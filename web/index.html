@@ -130,7 +130,7 @@ $('#pl').onclick=e=>{const b=e.target.closest('[data-id]');if(b&&!S.pend)arm(b.d
 $('#ch').onclick=e=>{const b=e.target.closest('[data-o]');if(!b||S.pend)return;if(!S.a||S.a.id==='test'){alert('先にパターンを選んでください。');return}const o=+b.dataset.o;arm(S.a.id,S.a.off===o?0:o)};
 $('#wake').onclick=stop;$('#t').onclick=test;$('#tx').onclick=clearAll;$('#pg').onclick=ping;
 const SCURL=new URL('shortcuts/asa-jitaku-renkei.shortcut',location.href).href;
-$('#imp2').href='shortcuts://import-shortcut?url='+encodeURIComponent(SCURL)+'&name='+encodeURIComponent(NAME);
+$('#imp2').href=SCURL;$('#imp2').target='_blank';$('#imp2').rel='noopener';
 $('#dl').href=SCURL;$('#fu').textContent=SCURL;
 $('#cp').onclick=()=>{navigator.clipboard.writeText(SCURL).then(()=>alert('コピーしました。Safariのアドレス欄に貼り付けて開いてください。')).catch(()=>alert('コピーできませんでした。上のURLを長押ししてコピーしてください。'))};
 fetch(SCURL,{method:'HEAD',cache:'no-store'}).then(r=>{$('#ss').textContent=r.ok?'配布ファイル：あります（Cherri --hubsignで署名済み）':'配布ファイル：見つかりません（ビルドが失敗している可能性）'}).catch(()=>{$('#ss').textContent='配布ファイルの状態を確認できません。'});
