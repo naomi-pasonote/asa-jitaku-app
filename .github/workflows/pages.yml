@@ -1,0 +1,53 @@
+name: Build and deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Cherri
+        run: |
+          curl -fsSL -o cherri.zip https://github.com/electrikmilk/cherri/releases/download/v2.3.0/cherri_linux-x86_64.zip
+          unzip -q cherri.zip
+          chmod +x cherri
+
+      - name: Compile and sign shortcut (Cherri --hubsign)
+        run: |
+          mkdir -p site/shortcuts
+          ./cherri shortcuts/asa_jitaku_renkei.cherri --hubsign
+          test -s shortcuts/asa_jitaku_renkei.shortcut
+          python3 -c "d=open('shortcuts/asa_jitaku_renkei.shortcut','rb').read(); assert d[:4]==b'AEA1', 'not a signed shortcut file'"
+          cp shortcuts/asa_jitaku_renkei.shortcut site/shortcuts/asa-jitaku-renkei.shortcut
+
+      - name: Assemble site
+        run: cp -r web/. site/
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
