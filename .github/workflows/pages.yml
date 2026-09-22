@@ -26,16 +26,50 @@ jobs:
           unzip -q cherri.zip
           chmod +x cherri
 
-      - name: Compile and sign shortcut (Cherri --hubsign)
+      - name: Compile shortcut
         run: |
-          mkdir -p site/shortcuts
-          ./cherri shortcuts/asa_jitaku_renkei.cherri --hubsign
-          test -s shortcuts/asa_jitaku_renkei.shortcut
-          python3 -c "d=open('shortcuts/asa_jitaku_renkei.shortcut','rb').read(); assert d[:4]==b'AEA1', 'not a signed shortcut file'"
-          cp shortcuts/asa_jitaku_renkei.shortcut site/shortcuts/asa-jitaku-renkei.shortcut
+          ./cherri shortcuts/asa_jitaku_renkei.cherri --skip-sign
+          test -s shortcuts/asa_jitaku_renkei_unsigned.shortcut
+
+      - name: Sign shortcut with HubSign
+        run: |
+          python3 - <<'PY'
+          import json, pathlib, urllib.request, sys
+          src = pathlib.Path("shortcuts/asa_jitaku_renkei_unsigned.shortcut")
+          dst = pathlib.Path("shortcuts/asa_jitaku_renkei.shortcut")
+          payload = json.dumps({
+              "shortcutName": "asa_jitaku_renkei",
+              "shortcut": src.read_text(encoding="utf-8")
+          }).encode("utf-8")
+          req = urllib.request.Request(
+              "https://hubsign.routinehub.services/sign",
+              data=payload,
+              method="POST",
+              headers={
+                  "Content-Type": "application/json",
+                  "User-Agent": "cherri/2.3.0",
+                  "Origin": "https://routinehub.co",
+                  "Referer": "https://routinehub.co/"
+              },
+          )
+          try:
+              with urllib.request.urlopen(req, timeout=60) as r:
+                  body = r.read()
+          except Exception as e:
+              print("HubSign request failed:", repr(e))
+              sys.exit(1)
+          if not body.startswith(b"AEA1"):
+              print("HubSign response was not a signed shortcut")
+              sys.exit(1)
+          dst.write_bytes(body)
+          print("Signed shortcut created:", len(body), "bytes")
+          PY
 
       - name: Assemble site
-        run: cp -r web/. site/
+        run: |
+          mkdir -p site/shortcuts
+          cp shortcuts/asa_jitaku_renkei.shortcut site/shortcuts/asa-jitaku-renkei.shortcut
+          cp -r web/. site/
 
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
