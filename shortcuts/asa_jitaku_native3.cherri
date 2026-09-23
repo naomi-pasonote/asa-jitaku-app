@@ -74,7 +74,8 @@ function setMorning(dictionary cfg, text pattern, number offsetMin) {
     }
 }
 
-@cfg = getDictionary(config)
+@configText = getText(config)
+@cfg = getDictionary(@configText)
 @patternNames = getKeys(@cfg)
 @patternCount = count(@patternNames)
 
