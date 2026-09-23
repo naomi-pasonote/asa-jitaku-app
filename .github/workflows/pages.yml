@@ -48,24 +48,24 @@ jobs:
           import plistlib
           original = plistlib.loads(src.read_bytes())
           before_actions = len(original.get("WFWorkflowActions", []))
-          original["WFWorkflowName"] = "AsaJitakuLink2"
+          original["WFWorkflowName"] = "AsaJitakuFinal"
           named_bytes = plistlib.dumps(original, fmt=plistlib.FMT_XML, sort_keys=False)
 
           check = plistlib.loads(named_bytes)
-          if check.get("WFWorkflowName") != "AsaJitakuLink2":
+          if check.get("WFWorkflowName") != "AsaJitakuFinal":
               print("WFWorkflowName injection failed")
               sys.exit(1)
           if len(check.get("WFWorkflowActions", [])) != before_actions:
               print("Action count changed during name injection")
               sys.exit(1)
 
-          named_path = pathlib.Path("shortcuts/AsaJitakuLink2_named_unsigned.shortcut")
+          named_path = pathlib.Path("shortcuts/AsaJitakuFinal_named_unsigned.shortcut")
           named_path.write_bytes(named_bytes)
           print("WFWorkflowName:", check["WFWorkflowName"])
           print("Action count preserved:", before_actions)
 
           payload = json.dumps({
-              "shortcutName": "AsaJitakuLink2",
+              "shortcutName": "AsaJitakuFinal",
               "shortcut": named_bytes.decode("utf-8")
           }).encode("utf-8")
           req = urllib.request.Request(
@@ -95,10 +95,10 @@ jobs:
       - name: Assemble site
         run: |
           mkdir -p site/shortcuts
-          cp shortcuts/asa_jitaku_renkei.shortcut site/shortcuts/AsaJitakuLink2.shortcut
-          cp shortcuts/asa_jitaku_renkei.shortcut "site/shortcuts/AsaJitakuLink2.shortcut"
-          (cd site/shortcuts && zip -q AsaJitakuLink2.zip "AsaJitakuLink2.shortcut")
-          (cd site/shortcuts && zip -q AsaJitakuLink2-FINAL.zip "AsaJitakuLink2.shortcut")
+          cp shortcuts/asa_jitaku_renkei.shortcut site/shortcuts/AsaJitakuFinal.shortcut
+          cp shortcuts/asa_jitaku_renkei.shortcut "site/shortcuts/AsaJitakuFinal.shortcut"
+          (cd site/shortcuts && zip -q AsaJitakuFinal.zip "AsaJitakuFinal.shortcut")
+          (cd site/shortcuts && zip -q AsaJitakuFinal-FINAL.zip "AsaJitakuFinal.shortcut")
           cp -r web/. site/
 
       - uses: actions/configure-pages@v5
