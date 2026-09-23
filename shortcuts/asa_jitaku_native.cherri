@@ -96,7 +96,8 @@ menu "朝じたく" {
         setMorning(@cfg, @pattern, @offsetKey)
 
     item "初期設定":
-        @setupText = prompt("設定データをそのまま貼り付けてください。これは最初の1回だけです。", "Text", "", true)
+        @setupRaw = prompt("設定データをそのまま貼り付けてください。これは最初の1回だけです。")
+        @setupText = getText(@setupRaw)
         @setupCfg = getDictionary(@setupText)
         @setupKeys = getKeys(@setupCfg)
         @setupCount = count(@setupKeys)
