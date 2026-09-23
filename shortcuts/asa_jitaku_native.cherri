@@ -68,7 +68,7 @@ menu "朝じたく" {
         stopMorning()
 
     item "今夜のアラームをセット":
-        @configFile = getFile("朝じたく設定.json", false)
+        @configFile = getFile("朝じたく設定.json")
         @configText = getText(@configFile)
         if !@configText {
             alert("設定がまだありません。最初に「初期設定」を1回だけ実行してください。", "朝じたく")
