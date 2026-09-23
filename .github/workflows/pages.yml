@@ -35,11 +35,11 @@ jobs:
       - name: Fix missing WFWorkflowName and sign (HubSign)
         run: |
           UNSIGNED=$(ls shortcuts/*_unsigned.shortcut | head -n1)
-          python3 tools/sign_hubsign.py --input "$UNSIGNED" --output shortcuts/AsaJitakuShare.shortcut --name AsaJitakuShare
-          test -s shortcuts/AsaJitakuShare.shortcut
-          python3 -c "d=open('shortcuts/AsaJitakuShare.shortcut','rb').read(); assert d[:4]==b'AEA1', 'not a signed shortcut file'"
-          cp shortcuts/AsaJitakuShare.shortcut site/shortcuts/AsaJitakuShare.shortcut
-          cd site/shortcuts && zip -q AsaJitakuShare.zip AsaJitakuShare.shortcut && cd -
+          python3 tools/sign_hubsign.py --input "$UNSIGNED" --output shortcuts/AsaJitakuShare2.shortcut --name AsaJitakuShare2
+          test -s shortcuts/AsaJitakuShare2.shortcut
+          python3 -c "d=open('shortcuts/AsaJitakuShare2.shortcut','rb').read(); assert d[:4]==b'AEA1', 'not a signed shortcut file'"
+          cp shortcuts/AsaJitakuShare2.shortcut site/shortcuts/AsaJitakuShare2.shortcut
+          cd site/shortcuts && zip -q AsaJitakuShare2.zip AsaJitakuShare2.shortcut && cd -
 
       - name: Assemble site
         run: cp -r web/. site/
