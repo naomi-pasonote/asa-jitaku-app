@@ -123,7 +123,7 @@ code{background:var(--blush);padding:1px 6px;border-radius:6px;font-size:15px}
 <p style="margin:14px 0 0"><button class="btn f" id="fs">保存</button><button class="btn" id="fd">削除</button><button class="btn" id="fx">閉じる</button></p></div></div>
 <nav><button data-t="home" class="on">ホーム</button><button data-t="pats">パターン</button><button data-t="set">設定</button></nav>
 <script>
-const K='asajitaku.v2',NAME='朝じたく連携',PREFIX='朝じたく｜',$=s=>document.querySelector(s);
+const K='asajitaku.v2',NAME='AsaJitakuLink',PREFIX='朝じたく｜',$=s=>document.querySelector(s);
 let S=(()=>{try{const s=JSON.parse(localStorage.getItem(K));if(s&&s.p)return s}catch(e){}return{p:[],a:null,ready:false,pend:null}})();
 const save=()=>{try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}};
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
