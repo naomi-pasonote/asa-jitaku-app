@@ -1,6 +1,7 @@
 #include 'actions/calendar'
 #include 'actions/documents'
 #include 'actions/text'
+#include 'actions/sharing'
 
 #define name AsaJitakuNative
 #define color pink
@@ -96,7 +97,7 @@ menu "朝じたく" {
         setMorning(@cfg, @pattern, @offsetKey)
 
     item "初期設定":
-        @setupRaw = prompt("設定データをそのまま貼り付けてください。これは最初の1回だけです。")
+        @setupRaw = getClipboard()
         @setupText = getText(@setupRaw)
         @setupCfg = getDictionary(@setupText)
         @setupKeys = getKeys(@setupCfg)
