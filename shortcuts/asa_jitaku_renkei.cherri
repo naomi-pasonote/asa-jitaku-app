@@ -1,7 +1,7 @@
 #include 'actions/calendar'
 #include 'actions/text'
 
-#define name AsaJitakuLink22
+#define name AsaJitakuLink2
 #define color pink
 #define glyph alarmClock
 #define version 26
