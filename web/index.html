@@ -54,69 +54,20 @@ code{background:var(--blush);padding:1px 6px;border-radius:6px;font-size:15px}
 <section class="g" id="pats"><h1>パターン</h1><p class="sub">タップで編集できます。</p><div id="pl2"></div>
 <button class="wake" style="font-size:24px;padding:20px" id="add">＋ パターンを追加</button></section>
 <section class="g" id="set"><h1>設定</h1>
-<div class="card"><b>ショートカットを追加する（最初の1回だけ）</b>
-<p style="font-size:15px;margin:8px 0">ショートカット名で呼び出す方式はやめました。かわりに、iPhone標準の「共有」機能を使います。</p>
+<div class="card"><b>新しい「朝じたく」を使う準備</b>
+<p style="font-size:15px;margin:8px 0">共有シート方式は使いません。下の2つだけで準備します。</p>
 <ol>
-<li>下の「ショートカットを開く」を1回押します</li>
-<li>iPhoneのショートカット画面が開いたら、そのまま追加してください</li>
+<li><b>「① 新しい朝じたくを追加」</b>を押して、<code>AsaJitakuNative</code> をショートカットに追加します。</li>
+<li>この画面に戻って<b>「② 今のパターンをコピー」</b>を押します。</li>
+<li>ショートカットアプリで <code>AsaJitakuNative</code> を開き、<b>「初期設定」</b>を1回押します。</li>
 </ol>
-<a class="btn f" id="dlshortcut" style="display:inline-block;text-decoration:none">ショートカットを開く</a>
-<a class="btn" id="dlzip" style="display:inline-block;text-decoration:none">ZIP（予備）</a>
-<p id="ss" style="font-size:13px;color:var(--mute);margin:8px 0 0"></p></div>
-
-<div class="card"><b>毎日の使い方（これだけ）</b>
-<p style="font-size:15px;margin:8px 0">「ホーム」でパターンを選ぶ、または「起きました」を押すと、iPhoneの共有シートが開きます。そこに並んだアイコンの中から「<span id="nm2"></span>」を1回タップしてください。それだけでアラームが作成・停止されます。</p>
-<button class="btn" id="pg">共有シートを開いて試す</button><p id="rd" style="font-size:15px;margin:8px 0 0"></p></div>
-
-<div class="card"><b>うまくいかないとき（最後の手段）</b>
-<p style="font-size:14px;color:var(--mute);margin:6px 0">共有シートに「AsaJitakuShare2」が出てこない場合だけ、下を開いてください。ショートカットアプリで手作業で作る手順です（10〜15分ほど）。</p>
-<details><summary style="font-size:15px;color:var(--deep)">手作業の手順を表示</summary>
-<div class="card"><b>ショートカット「AsaJitakuShare2」を作る（他の方法がすべて失敗した場合の、最後の手段）</b>
-<p style="font-size:15px;margin:8px 0">ショートカットアプリで新規ショートカットを作り、名前を <code>AsaJitakuShare2</code> にして、次のアクションを順番に追加します。</p>
-<ol>
-<li>入力からディクショナリを取得 (Get Dictionary from Input)：ショートカットの入力</li>
-<li>ディクショナリの値を取得 (Get Dictionary Value)：キー＝<code>mode</code>　→ 「モード」という名前に変更</li>
-</ol>
-<b style="font-size:17px">A. モードが ping のとき</b>
-<ol><li>もし (If)：モード ─ が次の文字列 ─ <code>ping</code></li>
-<li>マイアラームを取得 (Get My Alarms)</li>
-<li>カウント (Count)：上のアラーム</li>
-<li>テキスト (Text)：<code>ok|ping|</code>＋カウントの数（テキストの後ろにカウント変数を続けて入力）</li>
-<li>ショートカットの結果を設定 (Stop and Output)：上のテキスト</li></ol>
-<b style="font-size:17px">B. モードが stop のとき（起きました）</b>
-<ol><li>それ以外の場合 (Otherwise) → もし：モード ─ が次の文字列 ─ <code>stop</code></li>
-<li>マイアラームを取得</li>
-<li>各項目を繰り返す (Repeat with Each)：上のアラーム</li>
-<li>　もし：繰り返しの項目の名前 ─ で始まる文字列 ─ <code>朝じたく｜</code></li>
-<li>　　アラームをオフにする (Turn Off Alarm)：繰り返しの項目／「実行時に表示」はオフ</li>
-<li>　もしの終了</li><li>繰り返しの終了</li>
-<li>テキスト：<code>ok|stop|1</code></li>
-<li>ショートカットの結果を設定：上のテキスト</li></ol>
-<b style="font-size:17px">C. モードが clear のとき</b>
-<ol><li>それ以外の場合 → もし：モード ─ が次の文字列 ─ <code>clear</code></li>
-<li>Bと同じ手順（オフにするのではなく「アラームを削除 (Delete Alarm)」にする）</li>
-<li>テキスト：<code>ok|clear|1</code></li><li>ショートカットの結果を設定</li></ol>
-<b style="font-size:17px">D. モードが set のとき（残り＝これ以外すべて）</b>
-<ol><li>それ以外の場合（ここがsetの処理）</li>
-<li>Cと同じ手順で、まず「朝じたく｜」から始まる古いアラームを全部削除</li>
-<li>ディクショナリの値を取得：キー＝<code>pattern</code> → 「パターン名」</li>
-<li>ディクショナリの値を取得：キー＝<code>times</code> → 「時刻リスト」</li>
-<li>各項目を繰り返す：時刻リスト</li>
-<li>　アラームを作成 (Create Alarm)：名前＝テキストで <code>朝じたく｜</code>＋パターン名／時刻＝繰り返しの項目／「スヌーズを許可」はオフ</li>
-<li>繰り返しの終了</li>
-<li>カウント：時刻リスト</li>
-<li>テキスト：<code>ok|set|</code>＋上のカウント</li>
-<li>ショートカットの結果を設定</li>
-<li>もし（A〜D）の終了　×3</li></ol>
-<p style="font-size:13px;color:var(--mute);margin:6px 0 0">初回実行時に「アラームの追加／削除を許可しますか」と出ます。すべて「許可」を選んでください。「朝じたく｜」以外の名前のアラームは、この仕組みの対象になりません。</p></div>
-</details></div>
-
+<a class="btn f" id="dlnative" style="display:inline-block;text-decoration:none">① 新しい朝じたくを追加</a>
+<button class="btn" id="copycfg">② 今のパターンをコピー</button>
+<p id="nativeMsg" style="font-size:14px;color:var(--mute);margin:8px 0 0"></p>
+</div>
 <div class="card"><b>パターンの読み込み・書き出し</b><p style="font-size:15px;color:var(--mute);margin:6px 0">パターンはこのiPhoneの中だけに保存されます（公開されるプログラムには入っていません）。</p><textarea id="io" rows="4" style="width:100%;font-size:15px;border:2px solid var(--line);border-radius:12px;padding:10px;background:var(--iv)"></textarea><button class="btn f" id="imp">読み込む</button><button class="btn" id="exp">今の内容を表示</button></div>
-<div class="card"><b>実機テスト</b><p style="font-size:15px;color:var(--mute);margin:6px 0">2分後・4分後・6分後に「朝じたく｜テスト」のアラームを作ります。時計アプリで3つ入ったか確認してください。</p>
-<button class="btn f" id="t">テストを設定</button><button class="btn" id="tx">テスト設定を解除</button></div>
-<div class="card"><button class="btn" id="clr">朝じたくのアラームを全部消す</button><button class="btn" id="rst">パターンを全部削除</button></div>
 <div class="card" style="font-size:14px;color:var(--mute)" id="env"></div>
-<div class="card" style="font-size:12px;color:var(--mute)">共有シート版 2026-09-23 15:30</div>
+<div class="card" style="font-size:12px;color:var(--mute)">1本完結版 2026-09-23 17:00</div>
 </section></main>
 <div class="ov" id="ov"><div class="sheet"><b style="font-size:22px" id="ot"></b>
 <label>名前</label><input id="fn"><label>最初の時刻</label><input id="ft" type="time">
@@ -124,7 +75,7 @@ code{background:var(--blush);padding:1px 6px;border-radius:6px;font-size:15px}
 <p style="margin:14px 0 0"><button class="btn f" id="fs">保存</button><button class="btn" id="fd">削除</button><button class="btn" id="fx">閉じる</button></p></div></div>
 <nav><button data-t="home" class="on">ホーム</button><button data-t="pats">パターン</button><button data-t="set">設定</button></nav>
 <script>
-const K='asajitaku.v2',NAME='AsaJitakuShare2',PREFIX='朝じたく｜',$=s=>document.querySelector(s);
+const K='asajitaku.v2',PREFIX='朝じたく｜',$=s=>document.querySelector(s);
 let S=(()=>{try{const s=JSON.parse(localStorage.getItem(K));if(s&&s.p)return s}catch(e){}return{p:[],a:null,ready:false,pend:null}})();
 const save=()=>{try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}};
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -164,20 +115,29 @@ function render(){
  $('#pl').innerHTML=!S.p.length?'<p class="sub">パターンがありません。「設定」で読み込むか、「パターン」で追加してください。</p>':S.p.map(x=>'<button class="pat'+(a&&a.id===x.id?' on':'')+'" data-id="'+x.id+'"><div><b>'+esc(x.n)+'</b><span>'+desc(x)+'</span></div><i>'+(a&&a.id===x.id?'●':'○')+'</i></button>').join('');
  $('#pl2').innerHTML=!S.p.length?'<p class="sub">まだありません。</p>':S.p.map(x=>'<button class="pat" data-e="'+x.id+'"><div><b>'+esc(x.n)+'</b><span>'+desc(x)+'</span></div><i>›</i></button>').join('');
  $('#ch').innerHTML=[-30,-15,-10,-5,5,10,15,30].map(o=>'<button class="chip'+(a&&a.off===o?' on':'')+'" data-o="'+o+'">'+(o>0?'+':'')+o+'</button>').join('');
- $('#rd').textContent=S.ready?'連携テスト：共有シートを開けました':'連携テスト：まだ試していません';
- $('#env').textContent='表示モード：'+(navigator.standalone?'ホーム画面アプリ':'Safari')+'　／　共有先の名前：'+NAME;
- $('#nm2').textContent=NAME;
+ $('#env') && ($('#env').textContent='表示モード：'+(navigator.standalone?'ホーム画面アプリ':'Safari'));
 }
 $('#pl').onclick=e=>{const b=e.target.closest('[data-id]');if(b)arm(b.dataset.id,0)};
 $('#ch').onclick=e=>{const b=e.target.closest('[data-o]');if(!b)return;if(!S.a||S.a.id==='test'){alert('先にパターンを選んでください。');return}const o=+b.dataset.o;arm(S.a.id,S.a.off===o?0:o)};
-$('#wake').onclick=stop;$('#t').onclick=async()=>{if(await test()){S.ready=true;save();render()}};$('#tx').onclick=clearAll;$('#pg').onclick=async()=>{if(await ping()){S.ready=true;save();render()}};
+$('#wake').onclick=stop;
 const SHORTCUTURL=new URL('shortcuts/AsaJitakuShare2.shortcut',location.href).href;
-const ZIPURL=new URL('shortcuts/AsaJitakuShare2.zip',location.href).href;
-$('#dlshortcut').href=SHORTCUTURL;
-$('#dlzip').href=ZIPURL;
-fetch(SHORTCUTURL,{method:'HEAD',cache:'no-store'}).then(r=>{$('#ss').textContent=r.ok?'配布ファイル：あります（署名済み）':'配布ファイル：見つかりません（ビルドが失敗している可能性）'}).catch(()=>{$('#ss').textContent='配布ファイルの状態を確認できません。'});
-$('#clr').onclick=()=>{if(confirm('「朝じたく｜」ラベルのアラームを全部消します。'))clearAll()};
-$('#rst').onclick=()=>{if(confirm('パターンを全部削除します。')){S.p=[];S.a=null;save();render()}};
+const NATIVEURL=new URL('shortcuts/AsaJitakuNative.shortcut',location.href).href;
+const nativeLink=$('#dlnative'); if(nativeLink) nativeLink.href=NATIVEURL;
+const copyCfg=$('#copycfg');
+if(copyCfg) copyCfg.onclick=async()=>{
+  const msg=$('#nativeMsg');
+  if(!S.p.length){ if(msg) msg.textContent='パターンがまだありません。先にパターンを登録してください。'; return; }
+  const obj={};
+  S.p.forEach(p=>obj[p.n]={t:p.t,g:p.g,c:p.c});
+  const text=JSON.stringify(obj);
+  try{
+    await navigator.clipboard.writeText(text);
+    if(msg) msg.textContent='コピーできました。次はショートカットアプリの AsaJitakuNative →「初期設定」を押してください。';
+  }catch(e){
+    $('#io').value=text;
+    if(msg) msg.textContent='下の欄に設定を表示しました。長押ししてコピーしてください。';
+  }
+};
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('on',x===b));document.querySelectorAll('.g').forEach(g=>g.classList.toggle('on',g.id===b.dataset.t));scrollTo(0,0)});
 $('#exp').onclick=()=>{$('#io').value=JSON.stringify(S.p.map(({n,t,g,c})=>({n,t,g,c})))};
 $('#imp').onclick=()=>{try{const a=JSON.parse($('#io').value);if(!Array.isArray(a)||!a.length||!a.every(x=>typeof x.n==='string'&&typeof x.t==='string'&&Number.isFinite(x.g)&&Number.isFinite(x.c)))throw 0;S.p=a.map((x,i)=>({id:'p'+Date.now()+i,n:x.n,t:x.t,g:x.g,c:x.c}));S.a=null;save();render();$('#io').value='';alert(a.length+'件を読み込みました。')}catch(e){alert('読み込めませんでした。内容をもう一度コピーして貼り付けてください。')}};
