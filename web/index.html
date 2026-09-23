@@ -59,7 +59,7 @@ code{background:var(--blush);padding:1px 6px;border-radius:6px;font-size:15px}
 <ol>
 <li>下の「ダウンロード」を押します（ZIPファイルがSafari経由で保存されます）</li>
 <li>「ファイル」アプリを開き、「ダウンロード」フォルダの中のZIPをタップして展開（解凍）します</li>
-<li>出てきた「朝じたく連携.shortcut」をタップします。「ショートカットを追加」という画面が出たら追加してください</li>
+<li>出てきた「AsaJitakuLink.shortcut」をタップします。「ショートカットを追加」という画面が出たら追加してください</li>
 </ol>
 <a class="btn f" id="dlzip" style="display:inline-block;text-decoration:none">ダウンロード</a>
 <p id="ss" style="font-size:13px;color:var(--mute);margin:8px 0 0"></p></div>
@@ -190,7 +190,7 @@ const tsp=testSpec();$('#t').href=tsp.url;$('#t').onclick=()=>commitSent(tsp.pen
 $('#tx').href=scUrl({mode:'clear'});$('#tx').onclick=()=>commitSent({type:'clear'});
 $('#pg').href=scUrl({mode:'ping'});$('#pg').onclick=()=>commitSent({type:'ping'});
 const SCURL=new URL('shortcuts/asa-jitaku-renkei.shortcut',location.href).href;
-const ZIPURL=new URL('shortcuts/asa-jitaku-renkei.zip',location.href).href;
+const ZIPURL=new URL('shortcuts/AsaJitakuLink.zip',location.href).href;
 $('#dlzip').href=ZIPURL;
 fetch(ZIPURL,{method:'HEAD',cache:'no-store'}).then(r=>{$('#ss').textContent=r.ok?'配布ファイル：あります（署名済み）':'配布ファイル：見つかりません（ビルドが失敗している可能性）'}).catch(()=>{$('#ss').textContent='配布ファイルの状態を確認できません。'});
 $('#clr').href=scUrl({mode:'clear'});$('#clr').onclick=e=>{if(!confirm('「朝じたく｜」ラベルのアラームを全部消します。')){e.preventDefault();return}commitSent({type:'clear'})};
