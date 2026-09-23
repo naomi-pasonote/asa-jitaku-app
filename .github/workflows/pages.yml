@@ -98,6 +98,7 @@ jobs:
           cp shortcuts/asa_jitaku_renkei.shortcut site/shortcuts/AsaJitakuLink2.shortcut
           cp shortcuts/asa_jitaku_renkei.shortcut "site/shortcuts/AsaJitakuLink2.shortcut"
           (cd site/shortcuts && zip -q AsaJitakuLink2.zip "AsaJitakuLink2.shortcut")
+          (cd site/shortcuts && zip -q AsaJitakuLink2-FINAL.zip "AsaJitakuLink2.shortcut")
           cp -r web/. site/
 
       - uses: actions/configure-pages@v5
