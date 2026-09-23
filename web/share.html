@@ -57,11 +57,11 @@ code{background:var(--blush);padding:1px 6px;border-radius:6px;font-size:15px}
 <div class="card"><b>ショートカットを追加する（最初の1回だけ）</b>
 <p style="font-size:15px;margin:8px 0">ショートカット名で呼び出す方式はやめました。かわりに、iPhone標準の「共有」機能を使います。</p>
 <ol>
-<li>下の「ダウンロード」を押します（ZIPファイルがSafari経由で保存されます）</li>
-<li>「ファイル」アプリを開き、「ダウンロード」フォルダの中のZIPをタップして展開（解凍）します</li>
-<li>出てきた「AsaJitakuShare2.shortcut」をタップして、ショートカットアプリに追加します</li>
+<li>下の「ショートカットを開く」を1回押します</li>
+<li>iPhoneのショートカット画面が開いたら、そのまま追加してください</li>
 </ol>
-<a class="btn f" id="dlzip" style="display:inline-block;text-decoration:none">ダウンロード</a>
+<a class="btn f" id="dlshortcut" style="display:inline-block;text-decoration:none">ショートカットを開く</a>
+<a class="btn" id="dlzip" style="display:inline-block;text-decoration:none">ZIP（予備）</a>
 <p id="ss" style="font-size:13px;color:var(--mute);margin:8px 0 0"></p></div>
 
 <div class="card"><b>毎日の使い方（これだけ）</b>
@@ -171,9 +171,11 @@ function render(){
 $('#pl').onclick=e=>{const b=e.target.closest('[data-id]');if(b)arm(b.dataset.id,0)};
 $('#ch').onclick=e=>{const b=e.target.closest('[data-o]');if(!b)return;if(!S.a||S.a.id==='test'){alert('先にパターンを選んでください。');return}const o=+b.dataset.o;arm(S.a.id,S.a.off===o?0:o)};
 $('#wake').onclick=stop;$('#t').onclick=async()=>{if(await test()){S.ready=true;save();render()}};$('#tx').onclick=clearAll;$('#pg').onclick=async()=>{if(await ping()){S.ready=true;save();render()}};
+const SHORTCUTURL=new URL('shortcuts/AsaJitakuShare2.shortcut',location.href).href;
 const ZIPURL=new URL('shortcuts/AsaJitakuShare2.zip',location.href).href;
+$('#dlshortcut').href=SHORTCUTURL;
 $('#dlzip').href=ZIPURL;
-fetch(ZIPURL,{method:'HEAD',cache:'no-store'}).then(r=>{$('#ss').textContent=r.ok?'配布ファイル：あります（署名済み）':'配布ファイル：見つかりません（ビルドが失敗している可能性）'}).catch(()=>{$('#ss').textContent='配布ファイルの状態を確認できません。'});
+fetch(SHORTCUTURL,{method:'HEAD',cache:'no-store'}).then(r=>{$('#ss').textContent=r.ok?'配布ファイル：あります（署名済み）':'配布ファイル：見つかりません（ビルドが失敗している可能性）'}).catch(()=>{$('#ss').textContent='配布ファイルの状態を確認できません。'});
 $('#clr').onclick=()=>{if(confirm('「朝じたく｜」ラベルのアラームを全部消します。'))clearAll()};
 $('#rst').onclick=()=>{if(confirm('パターンを全部削除します。')){S.p=[];S.a=null;save();render()}};
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('on',x===b));document.querySelectorAll('.g').forEach(g=>g.classList.toggle('on',g.id===b.dataset.t));scrollTo(0,0)});
