@@ -1,0 +1,110 @@
+#include 'actions/calendar'
+#include 'actions/documents'
+#include 'actions/text'
+
+#define name AsaJitakuNative
+#define color pink
+#define glyph alarmClock
+#define version 26
+
+function stopMorning() {
+    @alarms = getAlarms()
+    @done = 0
+    for alarm in @alarms {
+        @rawName = getName(@alarm)
+        @alarmName = getText(@rawName)
+        if @alarmName beginsWith "朝じたく｜" {
+            turnOffAlarm(@alarm, false)
+            @done = @done + 1
+        }
+    }
+    alert("残りの朝じたくアラームを停止しました。", "朝じたく")
+}
+
+function clearMorning() {
+    @alarms = getAlarms()
+    @done = 0
+    for alarm in @alarms {
+        @rawName = getName(@alarm)
+        @alarmName = getText(@rawName)
+        if @alarmName beginsWith "朝じたく｜" {
+            deleteAlarm(@alarm)
+            @done = @done + 1
+        }
+    }
+    alert("朝じたくのアラームを削除しました。", "朝じたく")
+}
+
+function setMorning(dictionary cfg, text pattern, text offsetKey) {
+    @patternRaw = getValue(@cfg, @pattern)
+    @patternDict = getDictionary(@patternRaw)
+    @times = getValue(@patternDict, @offsetKey)
+
+    @alarms = getAlarms()
+    for alarm in @alarms {
+        @rawName = getName(@alarm)
+        @alarmName = getText(@rawName)
+        if @alarmName beginsWith "朝じたく｜" {
+            deleteAlarm(@alarm)
+        }
+    }
+
+    @made = 0
+    for timeValue in @times {
+        @timeText = getText(@timeValue)
+        createAlarm("朝じたく｜{@pattern}", @timeText, false)
+        @made = @made + 1
+    }
+
+    if @made == 0 {
+        alert("休日として設定しました。朝じたくのアラームはありません。", "朝じたく")
+    } else {
+        alert("{@pattern} をセットしました。\n{@made}個のアラームを作成しました。", "朝じたく")
+    }
+}
+
+menu "朝じたく" {
+    item "起きました":
+        stopMorning()
+
+    item "今夜のアラームをセット":
+        @configFile = getFile("朝じたく設定.json", false)
+        @configText = getText(@configFile)
+        if !@configText {
+            alert("設定がまだありません。最初に「初期設定」を1回だけ実行してください。", "朝じたく")
+            stop()
+        }
+
+        @cfg = getDictionary(@configText)
+        @patternNames = getKeys(@cfg)
+        @pattern = chooseFromList(@patternNames, "今夜のパターン")
+
+        @offsetLabels = list("そのまま","-30分","-15分","-10分","-5分","+5分","+10分","+15分","+30分")
+        @offsetLabel = chooseFromList(@offsetLabels, "今日だけ時刻をずらす")
+        @offsetKey = "0"
+        if @offsetLabel == "-30分" { @offsetKey = "-30" }
+        if @offsetLabel == "-15分" { @offsetKey = "-15" }
+        if @offsetLabel == "-10分" { @offsetKey = "-10" }
+        if @offsetLabel == "-5分" { @offsetKey = "-5" }
+        if @offsetLabel == "+5分" { @offsetKey = "5" }
+        if @offsetLabel == "+10分" { @offsetKey = "10" }
+        if @offsetLabel == "+15分" { @offsetKey = "15" }
+        if @offsetLabel == "+30分" { @offsetKey = "30" }
+
+        setMorning(@cfg, @pattern, @offsetKey)
+
+    item "初期設定":
+        @setupText = prompt("設定データをそのまま貼り付けてください。これは最初の1回だけです。", "Text", "", true)
+        @setupCfg = getDictionary(@setupText)
+        @setupKeys = getKeys(@setupCfg)
+        @setupCount = count(@setupKeys)
+        if @setupCount > 0 {
+            saveFile("朝じたく設定.json", @setupText, true)
+            alert("設定を保存しました。これで準備完了です。", "朝じたく")
+        } else {
+            alert("設定データを読み込めませんでした。", "朝じたく")
+        }
+
+    item "朝じたくのアラームを全部削除":
+        clearMorning()
+}
