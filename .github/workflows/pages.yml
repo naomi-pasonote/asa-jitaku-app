@@ -26,20 +26,30 @@ jobs:
           unzip -q cherri.zip
           chmod +x cherri
 
-      - name: Compile shortcut (unsigned)
+      - name: Compile shortcuts (unsigned)
         run: |
           mkdir -p site/shortcuts
           ./cherri shortcuts/asa_jitaku_renkei.cherri --skip-sign
+          ./cherri shortcuts/asa_jitaku_native.cherri --skip-sign
           ls shortcuts/*_unsigned.shortcut
 
-      - name: Fix missing WFWorkflowName and sign (HubSign)
+      - name: Sign share-sheet shortcut
         run: |
-          UNSIGNED=$(ls shortcuts/*_unsigned.shortcut | head -n1)
-          python3 tools/sign_hubsign.py --input "$UNSIGNED" --output shortcuts/AsaJitakuShare2.shortcut --name AsaJitakuShare2
+          UNSIGNED=$(ls shortcuts/asa_jitaku_renkei*_unsigned.shortcut | head -n1)
+          python3 tools/sign_hubsign.py --share-sheet --input "$UNSIGNED" --output shortcuts/AsaJitakuShare2.shortcut --name AsaJitakuShare2
           test -s shortcuts/AsaJitakuShare2.shortcut
-          python3 -c "d=open('shortcuts/AsaJitakuShare2.shortcut','rb').read(); assert d[:4]==b'AEA1', 'not a signed shortcut file'"
+          python3 -c "d=open('shortcuts/AsaJitakuShare2.shortcut','rb').read(); assert d[:4]==b'AEA1'"
           cp shortcuts/AsaJitakuShare2.shortcut site/shortcuts/AsaJitakuShare2.shortcut
           cd site/shortcuts && zip -q AsaJitakuShare2.zip AsaJitakuShare2.shortcut && cd -
+
+      - name: Sign standalone native shortcut
+        run: |
+          UNSIGNED=$(ls shortcuts/asa_jitaku_native*_unsigned.shortcut | head -n1)
+          python3 tools/sign_hubsign.py --input "$UNSIGNED" --output shortcuts/AsaJitakuNative.shortcut --name AsaJitakuNative
+          test -s shortcuts/AsaJitakuNative.shortcut
+          python3 -c "d=open('shortcuts/AsaJitakuNative.shortcut','rb').read(); assert d[:4]==b'AEA1'"
+          cp shortcuts/AsaJitakuNative.shortcut site/shortcuts/AsaJitakuNative.shortcut
+          cd site/shortcuts && zip -q AsaJitakuNative.zip AsaJitakuNative.shortcut && cd -
 
       - name: Assemble site
         run: cp -r web/. site/
