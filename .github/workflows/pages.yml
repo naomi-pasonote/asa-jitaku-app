@@ -55,7 +55,7 @@ jobs:
       - name: Sign import-config native shortcut v3
         run: |
           UNSIGNED=shortcuts/AsaJitakuNative3_unsigned.shortcut
-          python3 tools/sign_hubsign.py --input "$UNSIGNED" --output shortcuts/AsaJitakuNative3.shortcut --name AsaJitakuNative3
+          python3 tools/sign_hubsign.py --config-import-question --input "$UNSIGNED" --output shortcuts/AsaJitakuNative3.shortcut --name AsaJitakuNative3
           test -s shortcuts/AsaJitakuNative3.shortcut
           python3 -c "d=open('shortcuts/AsaJitakuNative3.shortcut','rb').read(); assert d[:4]==b'AEA1'"
           cp shortcuts/AsaJitakuNative3.shortcut site/shortcuts/AsaJitakuNative3.shortcut
