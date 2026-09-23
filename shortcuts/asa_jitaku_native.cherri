@@ -77,10 +77,12 @@ menu "朝じたく" {
 
         @cfg = getDictionary(@configText)
         @patternNames = getKeys(@cfg)
-        @pattern = chooseFromList(@patternNames, "今夜のパターン")
+        @patternChoice = chooseFromList(@patternNames, "今夜のパターン")
+        @pattern = getText(@patternChoice)
 
         @offsetLabels = list("そのまま","-30分","-15分","-10分","-5分","+5分","+10分","+15分","+30分")
-        @offsetLabel = chooseFromList(@offsetLabels, "今日だけ時刻をずらす")
+        @offsetChoice = chooseFromList(@offsetLabels, "今日だけ時刻をずらす")
+        @offsetLabel = getText(@offsetChoice)
         @offsetKey = "0"
         if @offsetLabel == "-30分" { @offsetKey = "-30" }
         if @offsetLabel == "-15分" { @offsetKey = "-15" }
