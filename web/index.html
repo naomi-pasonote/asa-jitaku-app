@@ -59,7 +59,7 @@ code{background:var(--blush);padding:1px 6px;border-radius:6px;font-size:15px}
 <ol>
 <li>下の「ダウンロード」を押します（ZIPファイルがSafari経由で保存されます）</li>
 <li>「ファイル」アプリを開き、「ダウンロード」フォルダの中のZIPをタップして展開（解凍）します</li>
-<li>出てきた「AsaJitakuShare.shortcut」をタップして、ショートカットアプリに追加します</li>
+<li>出てきた「AsaJitakuShare2.shortcut」をタップして、ショートカットアプリに追加します</li>
 </ol>
 <a class="btn f" id="dlzip" style="display:inline-block;text-decoration:none">ダウンロード</a>
 <p id="ss" style="font-size:13px;color:var(--mute);margin:8px 0 0"></p></div>
@@ -69,10 +69,10 @@ code{background:var(--blush);padding:1px 6px;border-radius:6px;font-size:15px}
 <button class="btn" id="pg">共有シートを開いて試す</button><p id="rd" style="font-size:15px;margin:8px 0 0"></p></div>
 
 <div class="card"><b>うまくいかないとき（最後の手段）</b>
-<p style="font-size:14px;color:var(--mute);margin:6px 0">共有シートに「AsaJitakuShare」が出てこない場合だけ、下を開いてください。ショートカットアプリで手作業で作る手順です（10〜15分ほど）。</p>
+<p style="font-size:14px;color:var(--mute);margin:6px 0">共有シートに「AsaJitakuShare2」が出てこない場合だけ、下を開いてください。ショートカットアプリで手作業で作る手順です（10〜15分ほど）。</p>
 <details><summary style="font-size:15px;color:var(--deep)">手作業の手順を表示</summary>
-<div class="card"><b>ショートカット「AsaJitakuShare」を作る（他の方法がすべて失敗した場合の、最後の手段）</b>
-<p style="font-size:15px;margin:8px 0">ショートカットアプリで新規ショートカットを作り、名前を <code>AsaJitakuShare</code> にして、次のアクションを順番に追加します。</p>
+<div class="card"><b>ショートカット「AsaJitakuShare2」を作る（他の方法がすべて失敗した場合の、最後の手段）</b>
+<p style="font-size:15px;margin:8px 0">ショートカットアプリで新規ショートカットを作り、名前を <code>AsaJitakuShare2</code> にして、次のアクションを順番に追加します。</p>
 <ol>
 <li>入力からディクショナリを取得 (Get Dictionary from Input)：ショートカットの入力</li>
 <li>ディクショナリの値を取得 (Get Dictionary Value)：キー＝<code>mode</code>　→ 「モード」という名前に変更</li>
@@ -124,7 +124,7 @@ code{background:var(--blush);padding:1px 6px;border-radius:6px;font-size:15px}
 <p style="margin:14px 0 0"><button class="btn f" id="fs">保存</button><button class="btn" id="fd">削除</button><button class="btn" id="fx">閉じる</button></p></div></div>
 <nav><button data-t="home" class="on">ホーム</button><button data-t="pats">パターン</button><button data-t="set">設定</button></nav>
 <script>
-const K='asajitaku.v2',NAME='AsaJitakuShare',PREFIX='朝じたく｜',$=s=>document.querySelector(s);
+const K='asajitaku.v2',NAME='AsaJitakuShare2',PREFIX='朝じたく｜',$=s=>document.querySelector(s);
 let S=(()=>{try{const s=JSON.parse(localStorage.getItem(K));if(s&&s.p)return s}catch(e){}return{p:[],a:null,ready:false,pend:null}})();
 const save=()=>{try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}};
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -171,7 +171,7 @@ function render(){
 $('#pl').onclick=e=>{const b=e.target.closest('[data-id]');if(b)arm(b.dataset.id,0)};
 $('#ch').onclick=e=>{const b=e.target.closest('[data-o]');if(!b)return;if(!S.a||S.a.id==='test'){alert('先にパターンを選んでください。');return}const o=+b.dataset.o;arm(S.a.id,S.a.off===o?0:o)};
 $('#wake').onclick=stop;$('#t').onclick=async()=>{if(await test()){S.ready=true;save();render()}};$('#tx').onclick=clearAll;$('#pg').onclick=async()=>{if(await ping()){S.ready=true;save();render()}};
-const ZIPURL=new URL('shortcuts/AsaJitakuShare.zip',location.href).href;
+const ZIPURL=new URL('shortcuts/AsaJitakuShare2.zip',location.href).href;
 $('#dlzip').href=ZIPURL;
 fetch(ZIPURL,{method:'HEAD',cache:'no-store'}).then(r=>{$('#ss').textContent=r.ok?'配布ファイル：あります（署名済み）':'配布ファイル：見つかりません（ビルドが失敗している可能性）'}).catch(()=>{$('#ss').textContent='配布ファイルの状態を確認できません。'});
 $('#clr').onclick=()=>{if(confirm('「朝じたく｜」ラベルのアラームを全部消します。'))clearAll()};
