@@ -15,6 +15,7 @@ def main() -> int:
     ap.add_argument("--input", type=Path, required=True)
     ap.add_argument("--output", type=Path, required=True)
     ap.add_argument("--name", required=True)
+    ap.add_argument("--share-sheet", action="store_true")
     a = ap.parse_args()
 
     wf = plistlib.loads(a.input.read_bytes())
@@ -22,30 +23,31 @@ def main() -> int:
 
     wf["WFWorkflowName"] = a.name
 
-    existing_types = list(wf.get("WFWorkflowTypes") or [])
-    if "ActionExtension" not in existing_types:
-        existing_types.append("ActionExtension")
-    wf["WFWorkflowTypes"] = existing_types
+    if a.share_sheet:
+        existing_types = list(wf.get("WFWorkflowTypes") or [])
+        if "ActionExtension" not in existing_types:
+            existing_types.append("ActionExtension")
+        wf["WFWorkflowTypes"] = existing_types
 
-    input_classes = list(wf.get("WFWorkflowInputContentItemClasses") or [])
-    for item in ("WFStringContentItem", "WFRichTextContentItem"):
-        if item not in input_classes:
-            input_classes.append(item)
-    wf["WFWorkflowInputContentItemClasses"] = input_classes
-    wf["WFWorkflowHasShortcutInputVariables"] = True
+        input_classes = list(wf.get("WFWorkflowInputContentItemClasses") or [])
+        for item in ("WFStringContentItem", "WFRichTextContentItem"):
+            if item not in input_classes:
+                input_classes.append(item)
+        wf["WFWorkflowInputContentItemClasses"] = input_classes
+        wf["WFWorkflowHasShortcutInputVariables"] = True
 
     if len(wf.get("WFWorkflowActions") or []) != before_actions:
         raise RuntimeError("action count changed")
     if wf.get("WFWorkflowName") != a.name:
         raise RuntimeError("WFWorkflowName injection failed")
-    if "ActionExtension" not in wf.get("WFWorkflowTypes", []):
+    if a.share_sheet and "ActionExtension" not in wf.get("WFWorkflowTypes", []):
         raise RuntimeError("ActionExtension injection failed")
-    if "WFStringContentItem" not in wf.get("WFWorkflowInputContentItemClasses", []):
+    if a.share_sheet and "WFStringContentItem" not in wf.get("WFWorkflowInputContentItemClasses", []):
         raise RuntimeError("text input class missing")
 
     print("WFWorkflowName:", wf["WFWorkflowName"])
-    print("ActionExtension:", "ActionExtension" in wf["WFWorkflowTypes"])
-    print("Text input:", "WFStringContentItem" in wf["WFWorkflowInputContentItemClasses"])
+    print("ActionExtension:", "ActionExtension" in wf.get("WFWorkflowTypes", []))
+    print("Text input:", "WFStringContentItem" in wf.get("WFWorkflowInputContentItemClasses", []))
     print("Action count preserved:", before_actions)
 
     xml = plistlib.dumps(wf, fmt=plistlib.FMT_XML, sort_keys=False).decode("utf-8")
