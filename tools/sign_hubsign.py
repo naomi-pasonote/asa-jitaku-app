@@ -16,12 +16,38 @@ def main() -> int:
     ap.add_argument("--output", type=Path, required=True)
     ap.add_argument("--name", required=True)
     ap.add_argument("--share-sheet", action="store_true")
+    ap.add_argument("--config-import-question", action="store_true")
     a = ap.parse_args()
 
     wf = plistlib.loads(a.input.read_bytes())
     before_actions = len(wf.get("WFWorkflowActions") or [])
 
     wf["WFWorkflowName"] = a.name
+
+    if a.config_import_question:
+        placeholder = "__ASAJITAKU_CONFIG__"
+        found = None
+        actions = wf.get("WFWorkflowActions") or []
+        for idx, action in enumerate(actions):
+            params = action.get("WFWorkflowActionParameters") or {}
+            for key, value in params.items():
+                if value == placeholder:
+                    found = (idx, key)
+                    break
+            if found:
+                break
+        if not found:
+            raise RuntimeError("config placeholder action not found")
+        idx, key = found
+        actions[idx]["WFWorkflowActionParameters"][key] = "{}"
+        wf["WFWorkflowImportQuestions"] = [{
+            "ParameterKey": key,
+            "Category": "Parameter",
+            "ActionIndex": idx,
+            "Text": "初期設定：朝じたくの設定データを貼り付けてください",
+            "DefaultValue": "{}",
+        }]
+        print("Config import question:", idx, key)
 
     if a.share_sheet:
         existing_types = list(wf.get("WFWorkflowTypes") or [])
