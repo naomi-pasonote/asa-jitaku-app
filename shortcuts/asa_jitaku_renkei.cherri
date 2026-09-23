@@ -1,7 +1,8 @@
 #include 'actions/calendar'
 #include 'actions/text'
+#include 'actions/basic'
 
-#define name 朝じたく連携
+#define name AsaJitakuLink
 #define color pink
 #define glyph alarmClock
 #define version 26
@@ -20,6 +21,7 @@
 
 if @mode == "ping" {
     @pingCount = count(@alarms)
+    showNotification("連携テストに成功しました。", "朝じたく")
     output("ok|ping|{@pingCount}")
 }
 
@@ -32,6 +34,7 @@ if @mode == "stop" {
             @done = @done + 1
         }
     }
+    showNotification("残りの朝じたくアラームを停止しました。", "朝じたく")
     output("ok|stop|{@done}")
 }
 
@@ -44,6 +47,7 @@ if @mode == "clear" {
             @done = @done + 1
         }
     }
+    showNotification("朝じたくアラームを削除しました。", "朝じたく")
     output("ok|clear|{@done}")
 }
 
@@ -66,6 +70,7 @@ if @mode == "set" {
         createAlarm("朝じたく｜{@pattern}", @timeText, false)
         @done = @done + 1
     }
+    showNotification("{@done}個のアラームを作成しました。", "朝じたく")
     output("ok|set|{@done}")
 }
 
