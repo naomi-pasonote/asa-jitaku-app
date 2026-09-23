@@ -1,6 +1,5 @@
 #include 'actions/calendar'
 #include 'actions/text'
-#include 'actions/basic'
 
 #define name AsaJitakuLink
 #define color pink
@@ -21,7 +20,10 @@
 
 if @mode == "ping" {
     @pingCount = count(@alarms)
-    showNotification("連携テストに成功しました。", "朝じたく")
+    rawAction("is.workflow.actions.notification", {
+        "WFNotificationActionTitle": "朝じたく",
+        "WFNotificationActionBody": "連携テストに成功しました。"
+    })
     output("ok|ping|{@pingCount}")
 }
 
@@ -34,7 +36,10 @@ if @mode == "stop" {
             @done = @done + 1
         }
     }
-    showNotification("残りの朝じたくアラームを停止しました。", "朝じたく")
+    rawAction("is.workflow.actions.notification", {
+        "WFNotificationActionTitle": "朝じたく",
+        "WFNotificationActionBody": "残りの朝じたくアラームを停止しました。"
+    })
     output("ok|stop|{@done}")
 }
 
@@ -47,7 +52,10 @@ if @mode == "clear" {
             @done = @done + 1
         }
     }
-    showNotification("朝じたくアラームを削除しました。", "朝じたく")
+    rawAction("is.workflow.actions.notification", {
+        "WFNotificationActionTitle": "朝じたく",
+        "WFNotificationActionBody": "朝じたくアラームを削除しました。"
+    })
     output("ok|clear|{@done}")
 }
 
@@ -70,7 +78,10 @@ if @mode == "set" {
         createAlarm("朝じたく｜{@pattern}", @timeText, false)
         @done = @done + 1
     }
-    showNotification("{@done}個のアラームを作成しました。", "朝じたく")
+    rawAction("is.workflow.actions.notification", {
+        "WFNotificationActionTitle": "朝じたく",
+        "WFNotificationActionBody": "{@done}個のアラームを作成しました。"
+    })
     output("ok|set|{@done}")
 }
 
