@@ -134,8 +134,13 @@ const hm=x=>{const d=new Date(x);return String(d.getHours()).padStart(2,'0')+':'
 const cbUrl=(st,rid)=>{const u=new URL(location.href);u.search='';u.hash='';u.searchParams.set('asaCallback',st);u.searchParams.set('rid',rid);return u.toString()};
 function invoke(payload,pend){
  const rid=Date.now().toString(36)+Math.random().toString(36).slice(2,6);
- payload.rid=rid;payload.prefix=PREFIX;pend.rid=rid;pend.mode=payload.mode;pend.at=Date.now();S.pend=pend;S.note='';save();render();
- location.href='shortcuts://x-callback-url/run-shortcut?name='+encodeURIComponent(NAME)+'&input=text&text='+encodeURIComponent(JSON.stringify(payload))+'&x-success='+encodeURIComponent(cbUrl('success',rid))+'&x-cancel='+encodeURIComponent(cbUrl('cancel',rid))+'&x-error='+encodeURIComponent(cbUrl('error',rid));
+ payload.rid=rid;payload.prefix=PREFIX;S.pend=null;
+ if(pend.type==='set'){S.a={...pend.a,at:Date.now()};S.note=pend.a.n?'ショートカットへ送りました（'+pend.a.n+'個）。時計アプリで確認できます。':'アラームなしをショートカットへ送りました。'}
+ else if(pend.type==='wake'){S.a=null;S.woke=Date.now();S.note='「起きました」をショートカットへ送りました。'}
+ else if(pend.type==='clear'){S.a=null;S.note='解除をショートカットへ送りました。'}
+ else if(pend.type==='ping'){S.ready=true;S.note='ショートカットを呼び出しました。エラーが出なければ連携できています。'}
+ save();render();
+ location.href='shortcuts://run-shortcut?name='+encodeURIComponent(NAME)+'&input=text&text='+encodeURIComponent(JSON.stringify(payload));
 }
 function setAlarms(name,ts,a){invoke({mode:'set',pattern:name,times:ts.map(hm)},{type:'set',a})}
 function arm(id,off){const p=S.p.find(x=>x.id===id);if(!p)return;const ts=times(p,off);
@@ -168,11 +173,11 @@ function render(){
  const h=new Date().getHours();$('#hello').textContent=h<5||h>=18?'おやすみ前に、パターンを1つ選びます。':'おはようございます。';
  const a=S.a,p=a&&S.p.find(x=>x.id===a.id),pd=S.pend;
  note(pd?'<b>結果を待っています</b>（'+({set:'セット',wake:'起きました',clear:'解除',ping:'連携テスト'}[pd.type])+'）<div style="font-size:15px;margin-top:4px">ショートカットから戻ってもこの表示が消えないときは、時計アプリで確認してください。</div>':S.note||'');
- $('#st').innerHTML=a?(a.id==='test'?'<b>テストをセット済み</b><div>'+fmt(new Date(a.f))+' ・ '+fmt(new Date(a.l-120000))+' ・ '+fmt(new Date(a.l))+'</div>':'<b>'+esc(p?p.n:'')+'</b><div>'+(a.n?fmt(new Date(a.f))+' 〜 '+fmt(new Date(a.l))+'（'+a.n+'個）':'アラームなし')+(a.off?'　今日だけ '+(a.off>0?'+':'')+a.off+'分':'')+'</div>')+'<small>'+fmt(new Date(a.at))+' にセット済み（ショートカットの成功を確認）。</small>':S.woke&&Date.now()-S.woke<432e5?'<b>停止済み</b><div>今朝の朝じたくアラームは止めました。</div>':'<b>セット済みの朝じたくはありません</b><div>下のパターンを選んでください。</div>';
+ $('#st').innerHTML=a?(a.id==='test'?'<b>テストをセット済み</b><div>'+fmt(new Date(a.f))+' ・ '+fmt(new Date(a.l-120000))+' ・ '+fmt(new Date(a.l))+'</div>':'<b>'+esc(p?p.n:'')+'</b><div>'+(a.n?fmt(new Date(a.f))+' 〜 '+fmt(new Date(a.l))+'（'+a.n+'個）':'アラームなし')+(a.off?'　今日だけ '+(a.off>0?'+':'')+a.off+'分':'')+'</div>')+'<small>'+fmt(new Date(a.at))+' に送信済み（時計アプリで確認できます）。</small>':S.woke&&Date.now()-S.woke<432e5?'<b>停止済み</b><div>今朝の朝じたくアラームは止めました。</div>':'<b>セット済みの朝じたくはありません</b><div>下のパターンを選んでください。</div>';
  $('#pl').innerHTML=!S.p.length?'<p class="sub">パターンがありません。「設定」で読み込むか、「パターン」で追加してください。</p>':S.p.map(x=>'<button class="pat'+(a&&a.id===x.id?' on':'')+'" data-id="'+x.id+'"><div><b>'+esc(x.n)+'</b><span>'+desc(x)+'</span></div><i>'+(a&&a.id===x.id?'●':'○')+'</i></button>').join('');
  $('#pl2').innerHTML=!S.p.length?'<p class="sub">まだありません。</p>':S.p.map(x=>'<button class="pat" data-e="'+x.id+'"><div><b>'+esc(x.n)+'</b><span>'+desc(x)+'</span></div><i>›</i></button>').join('');
  $('#ch').innerHTML=[-30,-15,-10,-5,5,10,15,30].map(o=>'<button class="chip'+(a&&a.off===o?' on':'')+'" data-o="'+o+'">'+(o>0?'+':'')+o+'</button>').join('');
- $('#rd').textContent=S.ready?'連携テスト：成功を確認済み':'連携テスト：まだ成功を確認していません';
+ $('#rd').textContent=S.ready?'連携テスト：呼び出し確認済み':'連携テスト：まだ成功を確認していません';
  $('#env').textContent='表示モード：'+(navigator.standalone?'ホーム画面アプリ':'Safari')+'　／　ショートカット名：'+NAME;
 }
 $('#pl').onclick=e=>{const b=e.target.closest('[data-id]');if(b&&!S.pend)arm(b.dataset.id,0)};
