@@ -5,6 +5,8 @@
 #define color pink
 #define glyph alarmClock
 #define version 26
+#define from sharesheet
+#define inputs text, richtext
 
 // 朝じたく連携（1本方式）
 // 入力(JSON): {"mode":"ping|set|stop|clear","rid":"...","pattern":"名前","times":["HH:mm",...]}
