@@ -44,12 +44,12 @@ jobs:
 
       - name: Sign standalone native shortcut
         run: |
-          UNSIGNED=shortcuts/AsaJitakuNative_unsigned.shortcut
-          python3 tools/sign_hubsign.py --input "$UNSIGNED" --output shortcuts/AsaJitakuNative.shortcut --name AsaJitakuNative
-          test -s shortcuts/AsaJitakuNative.shortcut
-          python3 -c "d=open('shortcuts/AsaJitakuNative.shortcut','rb').read(); assert d[:4]==b'AEA1'"
-          cp shortcuts/AsaJitakuNative.shortcut site/shortcuts/AsaJitakuNative.shortcut
-          cd site/shortcuts && zip -q AsaJitakuNative.zip AsaJitakuNative.shortcut && cd -
+          UNSIGNED=shortcuts/AsaJitakuNative2_unsigned.shortcut
+          python3 tools/sign_hubsign.py --input "$UNSIGNED" --output shortcuts/AsaJitakuNative2.shortcut --name AsaJitakuNative2
+          test -s shortcuts/AsaJitakuNative2.shortcut
+          python3 -c "d=open('shortcuts/AsaJitakuNative2.shortcut','rb').read(); assert d[:4]==b'AEA1'"
+          cp shortcuts/AsaJitakuNative2.shortcut site/shortcuts/AsaJitakuNative2.shortcut
+          cd site/shortcuts && zip -q AsaJitakuNative2.zip AsaJitakuNative2.shortcut && cd -
 
       - name: Assemble site
         run: cp -r web/. site/
