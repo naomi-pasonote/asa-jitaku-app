@@ -59,7 +59,7 @@ code{background:var(--blush);padding:1px 6px;border-radius:6px;font-size:15px}
 <ol>
 <li>下の「ダウンロード」を押します（ZIPファイルがSafari経由で保存されます）</li>
 <li>「ファイル」アプリを開き、「ダウンロード」フォルダの中のZIPをタップして展開（解凍）します</li>
-<li>出てきた「AsaJitakuLink.shortcut」をタップします。「ショートカットを追加」という画面が出たら追加してください</li>
+<li>出てきた「AsaJitakuLink2.shortcut」をタップします。「ショートカットを追加」という画面が出たら追加してください</li>
 </ol>
 <a class="btn f" id="dlzip" style="display:inline-block;text-decoration:none">ダウンロード</a>
 <p id="ss" style="font-size:13px;color:var(--mute);margin:8px 0 0"></p></div>
@@ -123,7 +123,7 @@ code{background:var(--blush);padding:1px 6px;border-radius:6px;font-size:15px}
 <p style="margin:14px 0 0"><button class="btn f" id="fs">保存</button><button class="btn" id="fd">削除</button><button class="btn" id="fx">閉じる</button></p></div></div>
 <nav><button data-t="home" class="on">ホーム</button><button data-t="pats">パターン</button><button data-t="set">設定</button></nav>
 <script>
-const K='asajitaku.v2',NAME='AsaJitakuLink',PREFIX='朝じたく｜',$=s=>document.querySelector(s);
+const K='asajitaku.v2',NAME='AsaJitakuLink2',PREFIX='朝じたく｜',$=s=>document.querySelector(s);
 let S=(()=>{try{const s=JSON.parse(localStorage.getItem(K));if(s&&s.p)return s}catch(e){}return{p:[],a:null,ready:false,pend:null}})();
 const save=()=>{try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}};
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -190,7 +190,7 @@ const tsp=testSpec();$('#t').href=tsp.url;$('#t').onclick=()=>commitSent(tsp.pen
 $('#tx').href=scUrl({mode:'clear'});$('#tx').onclick=()=>commitSent({type:'clear'});
 $('#pg').href=scUrl({mode:'ping'});$('#pg').onclick=()=>commitSent({type:'ping'});
 const SCURL=new URL('shortcuts/asa-jitaku-renkei.shortcut',location.href).href;
-const ZIPURL=new URL('shortcuts/AsaJitakuLink.zip',location.href).href;
+const ZIPURL=new URL('shortcuts/AsaJitakuLink2.zip',location.href).href;
 $('#dlzip').href=ZIPURL;
 fetch(ZIPURL,{method:'HEAD',cache:'no-store'}).then(r=>{$('#ss').textContent=r.ok?'配布ファイル：あります（署名済み）':'配布ファイル：見つかりません（ビルドが失敗している可能性）'}).catch(()=>{$('#ss').textContent='配布ファイルの状態を確認できません。'});
 $('#clr').href=scUrl({mode:'clear'});$('#clr').onclick=e=>{if(!confirm('「朝じたく｜」ラベルのアラームを全部消します。')){e.preventDefault();return}commitSent({type:'clear'})};
