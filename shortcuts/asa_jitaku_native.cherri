@@ -3,7 +3,7 @@
 #include 'actions/text'
 #include 'actions/sharing'
 
-#define name AsaJitakuNative
+#define name AsaJitakuNative2
 #define color pink
 #define glyph alarmClock
 #define version 26
@@ -79,7 +79,7 @@ menu "朝じたく" {
         stopMorning()
 
     item "今夜のアラームをセット":
-        @configFile = getFile("朝じたく設定.json")
+        @configFile = getFile("朝じたく/設定.json")
         @configText = getText(@configFile)
         if !@configText {
             alert("設定がまだありません。最初に「初期設定」を1回だけ実行してください。", "朝じたく")
@@ -113,7 +113,8 @@ menu "朝じたく" {
         @setupKeys = getKeys(@setupCfg)
         @setupCount = count(@setupKeys)
         if @setupCount > 0 {
-            saveFile("朝じたく設定.json", @setupText, true)
+            createFolder("朝じたく")
+            saveFile("朝じたく/設定.json", @setupText, true)
             alert("設定を保存しました。これで準備完了です。", "朝じたく")
         } else {
             alert("設定データを読み込めませんでした。", "朝じたく")
