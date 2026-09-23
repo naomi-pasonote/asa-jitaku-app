@@ -1,7 +1,7 @@
 #include 'actions/calendar'
 #include 'actions/text'
 
-#define name AsaJitakuFinal
+#define name AsaJitakuShare
 #define color pink
 #define glyph alarmClock
 #define version 26
@@ -9,7 +9,7 @@
 // 朝じたく連携（1本方式）
 // 入力(JSON): {"mode":"ping|set|stop|clear","rid":"...","pattern":"名前","times":["HH:mm",...]}
 // 「朝じたく｜」で始まるラベルのアラームだけを操作する。他のアラームには触れない。
-// 完了すると、呼び出し元(x-callback-url)へ成功が返る。失敗・中断はエラー/キャンセルで返る。
+// iPhoneの共有シートからJSONテキストを受け取って実行する。
 
 @rawInput = getText(ShortcutInput)
 @req = getDictionary(@rawInput)
@@ -20,10 +20,6 @@
 
 if @mode == "ping" {
     @pingCount = count(@alarms)
-    rawAction("is.workflow.actions.notification", {
-        "WFNotificationActionTitle": "朝じたく",
-        "WFNotificationActionBody": "連携テストに成功しました。"
-    })
     output("ok|ping|{@pingCount}")
 }
 
@@ -36,10 +32,6 @@ if @mode == "stop" {
             @done = @done + 1
         }
     }
-    rawAction("is.workflow.actions.notification", {
-        "WFNotificationActionTitle": "朝じたく",
-        "WFNotificationActionBody": "残りの朝じたくアラームを停止しました。"
-    })
     output("ok|stop|{@done}")
 }
 
@@ -52,10 +44,6 @@ if @mode == "clear" {
             @done = @done + 1
         }
     }
-    rawAction("is.workflow.actions.notification", {
-        "WFNotificationActionTitle": "朝じたく",
-        "WFNotificationActionBody": "朝じたくアラームを削除しました。"
-    })
     output("ok|clear|{@done}")
 }
 
@@ -78,10 +66,6 @@ if @mode == "set" {
         createAlarm("朝じたく｜{@pattern}", @timeText, false)
         @done = @done + 1
     }
-    rawAction("is.workflow.actions.notification", {
-        "WFNotificationActionTitle": "朝じたく",
-        "WFNotificationActionBody": "{@done}個のアラームを作成しました。"
-    })
     output("ok|set|{@done}")
 }
 

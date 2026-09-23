@@ -26,80 +26,23 @@ jobs:
           unzip -q cherri.zip
           chmod +x cherri
 
-      - name: Compile shortcut
-        run: |
-          ./cherri shortcuts/asa_jitaku_renkei.cherri --debug --skip-sign
-          echo "Compiled files:"
-          find shortcuts -maxdepth 1 -type f -print
-
-      - name: Sign shortcut with HubSign
-        run: |
-          python3 - <<'PY'
-          import json, pathlib, urllib.request, sys
-          candidates = list(pathlib.Path("shortcuts").glob("*_unsigned.shortcut"))
-          if not candidates:
-              print("Unsigned shortcut was not produced")
-              sys.exit(1)
-          src = candidates[0]
-          dst = pathlib.Path("shortcuts/asa_jitaku_renkei.shortcut")
-
-          # Cherri 2.3.0 does not emit a top-level WFWorkflowName.
-          # Add the real registered shortcut name before signing.
-          import plistlib
-          original = plistlib.loads(src.read_bytes())
-          before_actions = len(original.get("WFWorkflowActions", []))
-          original["WFWorkflowName"] = "AsaJitakuFinal"
-          named_bytes = plistlib.dumps(original, fmt=plistlib.FMT_XML, sort_keys=False)
-
-          check = plistlib.loads(named_bytes)
-          if check.get("WFWorkflowName") != "AsaJitakuFinal":
-              print("WFWorkflowName injection failed")
-              sys.exit(1)
-          if len(check.get("WFWorkflowActions", [])) != before_actions:
-              print("Action count changed during name injection")
-              sys.exit(1)
-
-          named_path = pathlib.Path("shortcuts/AsaJitakuFinal_named_unsigned.shortcut")
-          named_path.write_bytes(named_bytes)
-          print("WFWorkflowName:", check["WFWorkflowName"])
-          print("Action count preserved:", before_actions)
-
-          payload = json.dumps({
-              "shortcutName": "AsaJitakuFinal",
-              "shortcut": named_bytes.decode("utf-8")
-          }).encode("utf-8")
-          req = urllib.request.Request(
-              "https://hubsign.routinehub.services/sign",
-              data=payload,
-              method="POST",
-              headers={
-                  "Content-Type": "application/json",
-                  "User-Agent": "cherri/2.3.0",
-                  "Origin": "https://routinehub.co",
-                  "Referer": "https://routinehub.co/"
-              },
-          )
-          try:
-              with urllib.request.urlopen(req, timeout=60) as r:
-                  body = r.read()
-          except Exception as e:
-              print("HubSign request failed:", repr(e))
-              sys.exit(1)
-          if not body.startswith(b"AEA1"):
-              print("HubSign response was not a signed shortcut")
-              sys.exit(1)
-          dst.write_bytes(body)
-          print("Signed shortcut created:", len(body), "bytes")
-          PY
-
-      - name: Assemble site
+      - name: Compile shortcut (unsigned)
         run: |
           mkdir -p site/shortcuts
-          cp shortcuts/asa_jitaku_renkei.shortcut site/shortcuts/AsaJitakuFinal.shortcut
-          cp shortcuts/asa_jitaku_renkei.shortcut "site/shortcuts/AsaJitakuFinal.shortcut"
-          (cd site/shortcuts && zip -q AsaJitakuFinal.zip "AsaJitakuFinal.shortcut")
-          (cd site/shortcuts && zip -q AsaJitakuFinal-FINAL.zip "AsaJitakuFinal.shortcut")
-          cp -r web/. site/
+          ./cherri shortcuts/asa_jitaku_renkei.cherri --skip-sign
+          ls shortcuts/*_unsigned.shortcut
+
+      - name: Fix missing WFWorkflowName and sign (HubSign)
+        run: |
+          UNSIGNED=$(ls shortcuts/*_unsigned.shortcut | head -n1)
+          python3 tools/sign_hubsign.py --input "$UNSIGNED" --output shortcuts/AsaJitakuShare.shortcut --name AsaJitakuShare
+          test -s shortcuts/AsaJitakuShare.shortcut
+          python3 -c "d=open('shortcuts/AsaJitakuShare.shortcut','rb').read(); assert d[:4]==b'AEA1', 'not a signed shortcut file'"
+          cp shortcuts/AsaJitakuShare.shortcut site/shortcuts/AsaJitakuShare.shortcut
+          cd site/shortcuts && zip -q AsaJitakuShare.zip AsaJitakuShare.shortcut && cd -
+
+      - name: Assemble site
+        run: cp -r web/. site/
 
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3

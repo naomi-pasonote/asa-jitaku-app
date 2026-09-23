@@ -1,15 +1,22 @@
 # 朝じたく（公開用）
 
-- `web/` … ホーム画面用PWA。パターンの名前・時刻はiPhone内だけに保存（このリポジトリには入れない）。
-- `shortcuts/asa_jitaku_renkei.cherri` … ショートカット「朝じたく連携」（1本方式）。Cherriで作成。
-- `.github/workflows/pages.yml` … CherriでビルドしたショートカットをHubSignで署名し、署名済み `.shortcut` と配布用ZIPをGitHub Pagesへ公開する。
+- `web/` … ホーム画面用PWA。パターン名・時刻はiPhone内だけに保存し、このPublicリポジトリには入れない。
+- `shortcuts/asa_jitaku_renkei.cherri` … 共有シートからJSONを受け取り、「朝じたく｜」アラームだけを操作するショートカット。
+- `tools/sign_hubsign.py` … Cherri出力に正式名・共有シート設定・テキスト入力設定を付与してからHubSignで署名する。
+- `.github/workflows/pages.yml` … コンパイル、設定付与、署名、ZIP作成、GitHub Pages公開を行う。
 
-## 連携仕様
-PWA → `shortcuts://x-callback-url/run-shortcut?name=朝じたく連携&input=text&text=<JSON>&x-success=…&x-cancel=…&x-error=…`
+## 連携方式
 
-JSON: `{"mode":"ping|set|stop|clear","rid":"…","pattern":"名前","times":["HH:mm",…]}`
+`shortcuts://run-shortcut` / x-callback-url による名前起動は使用しない。
 
-- ラベルは常に `朝じたく｜` で始まるものだけを操作（ショートカット内で固定。JSONの `prefix` は無視）。
-- `set`: 古い「朝じたく｜」を削除→`times`の各時刻で作成（非繰り返し・スヌーズなし）。`stop`: OFF。`clear`: 削除。`ping`: 件数確認。
-- 応答（`result`）: `ok|<mode>|<件数>`。PWAは success かつ `result` が `ok|<mode>|<件数>` の形で一致し、setのときは件数も一致した場合だけ「セット済み／停止済み」にする。それ以外は表示を変えない。
-- 初回導入はPages上の配布ZIPをiPhoneへ保存し、「ファイル」アプリで展開した署名済み `.shortcut` を開く方式。
+PWAはiPhone標準のWeb Share API (`navigator.share`) でJSONテキストを共有し、
+共有シートから `AsaJitakuShare` を選ぶ。ショートカットは `ActionExtension` として共有シートに表示され、
+`WFStringContentItem` を受け取れる設定にする。
+
+JSON: `{"mode":"ping|set|stop|clear","pattern":"名前","times":["HH:mm",…]}`
+
+- `set`: 既存の「朝じたく｜」アラームだけを削除し、新しい時刻を作成。
+- `stop`: 「朝じたく｜」アラームだけをOFF。
+- `clear`: 「朝じたく｜」アラームだけを削除。
+- `ping`: 連携確認。
+- 他の通常アラームには触れない。

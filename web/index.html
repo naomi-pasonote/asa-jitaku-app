@@ -45,7 +45,7 @@ code{background:var(--blush);padding:1px 6px;border-radius:6px;font-size:15px}
 <section class="g on" id="home">
 <h1>朝じたく</h1><p class="sub" id="hello"></p>
 <div class="card" id="nt" style="display:none"></div>
-<a class="wake" id="wake" href="#" style="text-decoration:none;text-align:center">起きました</a>
+<button class="wake" id="wake">起きました</button>
 <div class="card st" id="st"></div>
 <h2>今夜のパターン</h2><div id="pl"></div>
 <h2>今日だけ時刻をずらす</h2><div class="chips" id="ch"></div>
@@ -54,25 +54,25 @@ code{background:var(--blush);padding:1px 6px;border-radius:6px;font-size:15px}
 <section class="g" id="pats"><h1>パターン</h1><p class="sub">タップで編集できます。</p><div id="pl2"></div>
 <button class="wake" style="font-size:24px;padding:20px" id="add">＋ パターンを追加</button></section>
 <section class="g" id="set"><h1>設定</h1>
-<div class="card"><b>ショートカットを追加する（ファイルで）</b>
-<p style="font-size:15px;margin:8px 0">Web上のURLを直接Shortcutsに渡す方式は使いません。かわりに、ファイルとして端末に置いてから開きます。</p>
+<div class="card"><b>ショートカットを追加する（最初の1回だけ）</b>
+<p style="font-size:15px;margin:8px 0">ショートカット名で呼び出す方式はやめました。かわりに、iPhone標準の「共有」機能を使います。</p>
 <ol>
 <li>下の「ダウンロード」を押します（ZIPファイルがSafari経由で保存されます）</li>
 <li>「ファイル」アプリを開き、「ダウンロード」フォルダの中のZIPをタップして展開（解凍）します</li>
-<li>出てきた「AsaJitakuFinal.shortcut」をタップします。「ショートカットを追加」という画面が出たら追加してください</li>
+<li>出てきた「AsaJitakuShare.shortcut」をタップして、ショートカットアプリに追加します</li>
 </ol>
 <a class="btn f" id="dlzip" style="display:inline-block;text-decoration:none">ダウンロード</a>
 <p id="ss" style="font-size:13px;color:var(--mute);margin:8px 0 0"></p></div>
 
-<div class="card"><b>作ったあとの確認</b>
-<p style="font-size:15px;margin:8px 0">追加できたら、下の「連携テスト」を押してください。「連携できました」と表示されれば完了です。</p>
-<a class="btn" id="pg" href="#" style="display:inline-block;text-decoration:none">連携テスト</a><p id="rd" style="font-size:15px;margin:8px 0 0"></p></div>
+<div class="card"><b>毎日の使い方（これだけ）</b>
+<p style="font-size:15px;margin:8px 0">「ホーム」でパターンを選ぶ、または「起きました」を押すと、iPhoneの共有シートが開きます。そこに並んだアイコンの中から「<span id="nm2"></span>」を1回タップしてください。それだけでアラームが作成・停止されます。</p>
+<button class="btn" id="pg">共有シートを開いて試す</button><p id="rd" style="font-size:15px;margin:8px 0 0"></p></div>
 
 <div class="card"><b>うまくいかないとき（最後の手段）</b>
-<p style="font-size:14px;color:var(--mute);margin:6px 0">上の方法が使えない場合だけ、下を開いてください。ショートカットアプリで手作業で作る手順です（10〜15分ほど）。</p>
+<p style="font-size:14px;color:var(--mute);margin:6px 0">共有シートに「AsaJitakuShare」が出てこない場合だけ、下を開いてください。ショートカットアプリで手作業で作る手順です（10〜15分ほど）。</p>
 <details><summary style="font-size:15px;color:var(--deep)">手作業の手順を表示</summary>
-<div class="card"><b>ショートカット「朝じたく連携」を作る（他の方法がすべて失敗した場合の、最後の手段）</b>
-<p style="font-size:15px;margin:8px 0">ショートカットアプリで新規ショートカットを作り、名前を <code>朝じたく連携</code> にして、次のアクションを順番に追加します。</p>
+<div class="card"><b>ショートカット「AsaJitakuShare」を作る（他の方法がすべて失敗した場合の、最後の手段）</b>
+<p style="font-size:15px;margin:8px 0">ショートカットアプリで新規ショートカットを作り、名前を <code>AsaJitakuShare</code> にして、次のアクションを順番に追加します。</p>
 <ol>
 <li>入力からディクショナリを取得 (Get Dictionary from Input)：ショートカットの入力</li>
 <li>ディクショナリの値を取得 (Get Dictionary Value)：キー＝<code>mode</code>　→ 「モード」という名前に変更</li>
@@ -113,8 +113,8 @@ code{background:var(--blush);padding:1px 6px;border-radius:6px;font-size:15px}
 
 <div class="card"><b>パターンの読み込み・書き出し</b><p style="font-size:15px;color:var(--mute);margin:6px 0">パターンはこのiPhoneの中だけに保存されます（公開されるプログラムには入っていません）。</p><textarea id="io" rows="4" style="width:100%;font-size:15px;border:2px solid var(--line);border-radius:12px;padding:10px;background:var(--iv)"></textarea><button class="btn f" id="imp">読み込む</button><button class="btn" id="exp">今の内容を表示</button></div>
 <div class="card"><b>実機テスト</b><p style="font-size:15px;color:var(--mute);margin:6px 0">2分後・4分後・6分後に「朝じたく｜テスト」のアラームを作ります。時計アプリで3つ入ったか確認してください。</p>
-<a class="btn f" id="t" href="#" style="display:inline-block;text-decoration:none">テストを設定</a><a class="btn" id="tx" href="#" style="display:inline-block;text-decoration:none">テスト設定を解除</a></div>
-<div class="card"><a class="btn" id="clr" href="#" style="display:inline-block;text-decoration:none">朝じたくのアラームを全部消す</a><button class="btn" id="rst">パターンを全部削除</button></div>
+<button class="btn f" id="t">テストを設定</button><button class="btn" id="tx">テスト設定を解除</button></div>
+<div class="card"><button class="btn" id="clr">朝じたくのアラームを全部消す</button><button class="btn" id="rst">パターンを全部削除</button></div>
 <div class="card" style="font-size:14px;color:var(--mute)" id="env"></div>
 </section></main>
 <div class="ov" id="ov"><div class="sheet"><b style="font-size:22px" id="ot"></b>
@@ -123,7 +123,7 @@ code{background:var(--blush);padding:1px 6px;border-radius:6px;font-size:15px}
 <p style="margin:14px 0 0"><button class="btn f" id="fs">保存</button><button class="btn" id="fd">削除</button><button class="btn" id="fx">閉じる</button></p></div></div>
 <nav><button data-t="home" class="on">ホーム</button><button data-t="pats">パターン</button><button data-t="set">設定</button></nav>
 <script>
-const K='asajitaku.v2',NAME='AsaJitakuFinal',PREFIX='朝じたく｜',$=s=>document.querySelector(s);
+const K='asajitaku.v2',NAME='AsaJitakuShare',PREFIX='朝じたく｜',$=s=>document.querySelector(s);
 let S=(()=>{try{const s=JSON.parse(localStorage.getItem(K));if(s&&s.p)return s}catch(e){}return{p:[],a:null,ready:false,pend:null}})();
 const save=()=>{try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}};
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -131,69 +131,49 @@ const fmt=d=>d.getHours()+':'+String(d.getMinutes()).padStart(2,'0');
 const desc=p=>p.c?fmt(new Date(2000,0,1,...p.t.split(':')))+' ・ '+p.g+'分おき×'+p.c:'アラームなし';
 function times(p,off){const now=Date.now(),[h,m]=p.t.split(':').map(Number),d=new Date(now);d.setHours(h,m+off,0,0);if(d.getTime()<now+30000)d.setDate(d.getDate()+1);return Array.from({length:p.c},(_,i)=>d.getTime()+i*p.g*60000)}
 const hm=x=>{const d=new Date(x);return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')};
-const cbUrl=(st,rid)=>{const u=new URL(location.href);u.search='';u.hash='';u.searchParams.set('asaCallback',st);u.searchParams.set('rid',rid);return u.toString()};
-function scUrl(payload){
- payload={...payload,prefix:PREFIX};
- return 'shortcuts://run-shortcut?name='+encodeURIComponent(NAME)+'&input=text&text='+encodeURIComponent(JSON.stringify(payload));
-}
-function commitSent(p){
- S.pend=null;
- if(p.type==='set'){S.a={...p.a,at:Date.now()};S.note=p.a.n?'ショートカットへ送りました（'+p.a.n+'個）。時計アプリで確認できます。':'アラームなしをショートカットへ送りました。'}
- else if(p.type==='wake'){S.a=null;S.woke=Date.now();S.note='「起きました」をショートカットへ送りました。'}
- else if(p.type==='clear'){S.a=null;S.note='解除をショートカットへ送りました。'}
- else if(p.type==='ping'){S.ready=true;S.note='ショートカットを呼び出しました。エラーが出なければ連携できています。'}
- save();
-}
-function armSpec(id,off){
- const p=S.p.find(x=>x.id===id);if(!p)return null;const ts=times(p,off);
- if(!ts.length)return{url:scUrl({mode:'clear'}),pend:{type:'set',a:{id,off:0,f:0,l:0,n:0}}};
- return{url:scUrl({mode:'set',pattern:p.n,times:ts.map(hm)}),pend:{type:'set',a:{id,off,f:ts[0],l:ts[ts.length-1],n:ts.length}}};
-}
-function testSpec(){
- const now=Date.now(),ts=[2,4,6].map(k=>{const d=new Date(now+k*60000);d.setSeconds(0,0);return+d});
- return{url:scUrl({mode:'set',pattern:'テスト',times:ts.map(hm)}),pend:{type:'set',a:{id:'test',off:0,f:ts[0],l:ts[2],n:3}}};
-}
-function note(t){const n=$('#nt');n.style.display=t?'block':'none';n.innerHTML=t?t+'<div><button class="btn" id="ntx" style="margin-top:8px">閉じる</button></div>':'';if(t)$('#ntx').onclick=()=>{S.pend=null;S.note='';save();render()}}
-function judge(st,res,p){
- if(st!=='success')return st==='cancel'?'cancel':'error';
- const pt=res.split('|'),n=/^\d+$/.test(pt[2]||'')?+pt[2]:-1;
- if(pt[0]!=='ok'||pt[1]!==p.mode||n<0)return 'noresult';
- if(p.mode==='set'&&n!==p.a.n)return 'mismatch';
- return 'ok'}
-function cbHandle(){
- const q=new URLSearchParams(location.search),st=q.get('asaCallback');if(!st)return;
- const rid=q.get('rid'),res=q.get('result')||'',err=q.get('errorMessage')||'';history.replaceState(null,'',location.pathname);
- const p=S.pend;
- if(!p||p.rid!==rid){S.note='結果を反映できませんでした。この画面で送った操作と一致しません。時計アプリで確認してください。'+(navigator.standalone===false?'（Safariで開かれています。ホーム画面のアプリで確認してください）':'');save();return}
- S.pend=null;const r=judge(st,res,p);
- if(r!=='ok'){S.note=({cancel:'中断されました。',error:'完了しませんでした。'+(err?'（'+err+'）':''),noresult:'成功の結果が確認できなかったため、セット済み／停止済みにはしていません。時計アプリで確認してください。'+(res?'（'+res+'）':''),mismatch:'作成された件数が一致しませんでした。時計アプリで確認してください。（'+res+'）'}[r])+'表示は変えていません。';save();return}
- if(p.type==='set'){S.a={...p.a,at:Date.now()};S.note=p.a.n?'セットしました（'+p.a.n+'個）。':'アラームなしにしました。'}
- else if(p.type==='wake'){S.a=null;S.woke=Date.now();S.note='おはようございます。残りの朝じたくアラームを止めました。'}
- else if(p.type==='clear'){S.a=null;S.note='朝じたくのアラームを解除しました。'}
- else if(p.type==='ping'){S.ready=true;S.note='連携できました。'}
- save()}
+async function invoke(payload,a){
+ payload.prefix=PREFIX;
+ if(!navigator.share){S.note='この端末は共有機能に対応していません。';save();render();return false}
+ try{
+  await navigator.share({text:JSON.stringify(payload)});
+  if(a===undefined){S.note='共有しました。共有シートで「'+NAME+'」を選んだ場合、結果は時計アプリでご確認ください。'}
+  else if(a===null){S.a=null;S.woke=Date.now();S.note='共有しました。共有シートで「'+NAME+'」を選ぶと、残りの朝じたくアラームが止まります。'}
+  else if(a.type==='clear'){S.a=null;S.note='共有しました。共有シートで「'+NAME+'」を選ぶと、朝じたくのアラームが解除されます。'}
+  else{S.a={...a,at:Date.now()};S.note='共有しました。共有シートで「'+NAME+'」を選ぶと、アラームがセットされます（時計アプリでご確認ください）。'}
+  save();render();return true
+ }catch(e){
+  if(e && e.name==='AbortError'){S.note='共有をキャンセルしました。表示は変えていません。'}
+  else{S.note='共有できませんでした。もう一度お試しください。'}
+  save();render();return false
+ }}
+function setAlarms(name,ts,a){return invoke({mode:'set',pattern:name,times:ts.map(hm)},{id:a.id,off:a.off,f:a.f,l:a.l,n:a.n})}
+function arm(id,off){const p=S.p.find(x=>x.id===id);if(!p)return;const ts=times(p,off);
+ if(!ts.length){invoke({mode:'clear'},{type:'clear'});return}
+ setAlarms(p.n,ts,{id,off,f:ts[0],l:ts[ts.length-1],n:ts.length})}
+function test(){const now=Date.now(),ts=[2,4,6].map(k=>{const d=new Date(now+k*60000);d.setSeconds(0,0);return+d});return setAlarms('テスト',ts,{id:'test',off:0,f:ts[0],l:ts[2],n:3})}
+const stop=()=>invoke({mode:'stop'},null);
+const clearAll=()=>invoke({mode:'clear'},{type:'clear'});
+const ping=()=>invoke({mode:'ping'});
+function note(t){const n=$('#nt');n.style.display=t?'block':'none';n.innerHTML=t?t+'<div><button class="btn" id="ntx" style="margin-top:8px">閉じる</button></div>':'';if(t)$('#ntx').onclick=()=>{S.note='';save();render()}}
 function render(){
  const h=new Date().getHours();$('#hello').textContent=h<5||h>=18?'おやすみ前に、パターンを1つ選びます。':'おはようございます。';
- const a=S.a,p=a&&S.p.find(x=>x.id===a.id),pd=S.pend;
- note(pd?'<b>結果を待っています</b>（'+({set:'セット',wake:'起きました',clear:'解除',ping:'連携テスト'}[pd.type])+'）<div style="font-size:15px;margin-top:4px">ショートカットから戻ってもこの表示が消えないときは、時計アプリで確認してください。</div>':S.note||'');
- $('#st').innerHTML=a?(a.id==='test'?'<b>テストをセット済み</b><div>'+fmt(new Date(a.f))+' ・ '+fmt(new Date(a.l-120000))+' ・ '+fmt(new Date(a.l))+'</div>':'<b>'+esc(p?p.n:'')+'</b><div>'+(a.n?fmt(new Date(a.f))+' 〜 '+fmt(new Date(a.l))+'（'+a.n+'個）':'アラームなし')+(a.off?'　今日だけ '+(a.off>0?'+':'')+a.off+'分':'')+'</div>')+'<small>'+fmt(new Date(a.at))+' に送信済み（時計アプリで確認できます）。</small>':S.woke&&Date.now()-S.woke<432e5?'<b>停止済み</b><div>今朝の朝じたくアラームは止めました。</div>':'<b>セット済みの朝じたくはありません</b><div>下のパターンを選んでください。</div>';
- $('#pl').innerHTML=!S.p.length?'<p class="sub">パターンがありません。「設定」で読み込むか、「パターン」で追加してください。</p>':S.p.map(x=>{const sp=armSpec(x.id,0);return '<a class="pat'+(a&&a.id===x.id?' on':'')+'" data-id="'+x.id+'" href="'+esc(sp.url)+'" style="text-decoration:none"><div><b>'+esc(x.n)+'</b><span>'+desc(x)+'</span></div><i>'+(a&&a.id===x.id?'●':'○')+'</i></a>'}).join('');
+ const a=S.a,p=a&&S.p.find(x=>x.id===a.id);
+ note(S.note||'');
+ $('#st').innerHTML=a?(a.id==='test'?'<b>テストを共有済み</b><div>'+fmt(new Date(a.f))+' ・ '+fmt(new Date(a.l-120000))+' ・ '+fmt(new Date(a.l))+'</div>':'<b>'+esc(p?p.n:'')+'</b><div>'+(a.n?fmt(new Date(a.f))+' 〜 '+fmt(new Date(a.l))+'（'+a.n+'個）':'アラームなし')+(a.off?'　今日だけ '+(a.off>0?'+':'')+a.off+'分':'')+'</div>')+'<small>'+fmt(new Date(a.at))+' に共有（結果は時計アプリでご確認ください）。</small>':S.woke&&Date.now()-S.woke<432e5?'<b>停止を共有済み</b><div>今朝の分は時計アプリでご確認ください。</div>':'<b>まだ共有していません</b><div>下のパターンを選んでください。</div>';
+ $('#pl').innerHTML=!S.p.length?'<p class="sub">パターンがありません。「設定」で読み込むか、「パターン」で追加してください。</p>':S.p.map(x=>'<button class="pat'+(a&&a.id===x.id?' on':'')+'" data-id="'+x.id+'"><div><b>'+esc(x.n)+'</b><span>'+desc(x)+'</span></div><i>'+(a&&a.id===x.id?'●':'○')+'</i></button>').join('');
  $('#pl2').innerHTML=!S.p.length?'<p class="sub">まだありません。</p>':S.p.map(x=>'<button class="pat" data-e="'+x.id+'"><div><b>'+esc(x.n)+'</b><span>'+desc(x)+'</span></div><i>›</i></button>').join('');
- $('#ch').innerHTML=[-30,-15,-10,-5,5,10,15,30].map(o=>{const sp=a&&a.id!=='test'?armSpec(a.id,o):null;return '<a class="chip'+(a&&a.off===o?' on':'')+'" data-o="'+o+'" href="'+(sp?esc(sp.url):'#')+'" style="text-decoration:none;text-align:center">'+(o>0?'+':'')+o+'</a>'}).join('');
- $('#rd').textContent=S.ready?'連携テスト：呼び出し確認済み':'連携テスト：まだ成功を確認していません';
- $('#env').textContent='表示モード：'+(navigator.standalone?'ホーム画面アプリ':'Safari')+'　／　ショートカット名：'+NAME;
+ $('#ch').innerHTML=[-30,-15,-10,-5,5,10,15,30].map(o=>'<button class="chip'+(a&&a.off===o?' on':'')+'" data-o="'+o+'">'+(o>0?'+':'')+o+'</button>').join('');
+ $('#rd').textContent=S.ready?'連携テスト：共有シートを開けました':'連携テスト：まだ試していません';
+ $('#env').textContent='表示モード：'+(navigator.standalone?'ホーム画面アプリ':'Safari')+'　／　共有先の名前：'+NAME;
+ $('#nm2').textContent=NAME;
 }
-$('#pl').onclick=e=>{const b=e.target.closest('a[data-id]');if(!b)return;if(S.pend){e.preventDefault();return}const sp=armSpec(b.dataset.id,0);if(!sp){e.preventDefault();return}b.href=sp.url;commitSent(sp.pend)};
-$('#ch').onclick=e=>{const b=e.target.closest('a[data-o]');if(!b)return;if(!S.a||S.a.id==='test'){e.preventDefault();alert('先にパターンを選んでください。');return}const o=+b.dataset.o,sp=armSpec(S.a.id,S.a.off===o?0:o);b.href=sp.url;commitSent(sp.pend)};
-$('#wake').href=scUrl({mode:'stop'});$('#wake').onclick=()=>commitSent({type:'wake'});
-const tsp=testSpec();$('#t').href=tsp.url;$('#t').onclick=()=>commitSent(tsp.pend);
-$('#tx').href=scUrl({mode:'clear'});$('#tx').onclick=()=>commitSent({type:'clear'});
-$('#pg').href=scUrl({mode:'ping'});$('#pg').onclick=()=>commitSent({type:'ping'});
-const SCURL=new URL('shortcuts/asa-jitaku-renkei.shortcut',location.href).href;
-const ZIPURL=new URL('shortcuts/AsaJitakuFinal-FINAL.zip',location.href).href;
+$('#pl').onclick=e=>{const b=e.target.closest('[data-id]');if(b)arm(b.dataset.id,0)};
+$('#ch').onclick=e=>{const b=e.target.closest('[data-o]');if(!b)return;if(!S.a||S.a.id==='test'){alert('先にパターンを選んでください。');return}const o=+b.dataset.o;arm(S.a.id,S.a.off===o?0:o)};
+$('#wake').onclick=stop;$('#t').onclick=async()=>{if(await test()){S.ready=true;save();render()}};$('#tx').onclick=clearAll;$('#pg').onclick=async()=>{if(await ping()){S.ready=true;save();render()}};
+const ZIPURL=new URL('shortcuts/AsaJitakuShare.zip',location.href).href;
 $('#dlzip').href=ZIPURL;
 fetch(ZIPURL,{method:'HEAD',cache:'no-store'}).then(r=>{$('#ss').textContent=r.ok?'配布ファイル：あります（署名済み）':'配布ファイル：見つかりません（ビルドが失敗している可能性）'}).catch(()=>{$('#ss').textContent='配布ファイルの状態を確認できません。'});
-$('#clr').href=scUrl({mode:'clear'});$('#clr').onclick=e=>{if(!confirm('「朝じたく｜」ラベルのアラームを全部消します。')){e.preventDefault();return}commitSent({type:'clear'})};
+$('#clr').onclick=()=>{if(confirm('「朝じたく｜」ラベルのアラームを全部消します。'))clearAll()};
 $('#rst').onclick=()=>{if(confirm('パターンを全部削除します。')){S.p=[];S.a=null;save();render()}};
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('on',x===b));document.querySelectorAll('.g').forEach(g=>g.classList.toggle('on',g.id===b.dataset.t));scrollTo(0,0)});
 $('#exp').onclick=()=>{$('#io').value=JSON.stringify(S.p.map(({n,t,g,c})=>({n,t,g,c})))};
@@ -205,6 +185,6 @@ $('#fs').onclick=()=>{const n=$('#fn').value.trim(),c=Math.max(0,Math.min(20,+$(
  const o={id:eid||'p'+Date.now(),n,t:c?t:'',g:c?g:0,c};const i=S.p.findIndex(x=>x.id===o.id);i<0?S.p.push(o):S.p[i]=o;save();$('#ov').classList.remove('on');render()};
 $('#fd').onclick=()=>{if(confirm('このパターンを削除します。')){S.p=S.p.filter(x=>x.id!==eid);if(S.a&&S.a.id===eid)S.a=null;save();$('#ov').classList.remove('on');render()}};
 document.addEventListener('visibilitychange',render);
-cbHandle();render();
+render();
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script></body></html>
