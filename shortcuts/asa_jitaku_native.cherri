@@ -36,10 +36,16 @@ function clearMorning() {
     alert("朝じたくのアラームを削除しました。", "朝じたく")
 }
 
-function setMorning(dictionary cfg, text pattern, text offsetKey) {
+function setMorning(dictionary cfg, text pattern, number offsetMin) {
     @patternRaw = getValue(@cfg, @pattern)
     @patternDict = getDictionary(@patternRaw)
-    @times = getValue(@patternDict, @offsetKey)
+
+    @startRaw = getValue(@patternDict, "t")
+    @startText = getText(@startRaw)
+    @gapRaw = getValue(@patternDict, "g")
+    @gap = number(@gapRaw)
+    @countRaw = getValue(@patternDict, "c")
+    @alarmCount = number(@countRaw)
 
     @alarms = getAlarms()
     for alarm in @alarms {
@@ -50,16 +56,20 @@ function setMorning(dictionary cfg, text pattern, text offsetKey) {
         }
     }
 
-    @made = 0
-    for timeValue in @times {
-        @timeText = getText(@timeValue)
-        createAlarm("朝じたく｜{@pattern}", @timeText, false)
-        @made = @made + 1
-    }
-
-    if @made == 0 {
+    if @alarmCount == 0 {
         alert("休日として設定しました。朝じたくのアラームはありません。", "朝じたく")
     } else {
+        @baseDate = date(@startText)
+        @shiftedDate = adjustDate(@baseDate, "Add", qty(@offsetMin, "min"))
+        @made = 0
+        repeat i for @alarmCount {
+            @zeroIndex = @i - 1
+            @addMinutes = @zeroIndex * @gap
+            @alarmDate = adjustDate(@shiftedDate, "Add", qty(@addMinutes, "min"))
+            @timeText = formatDate(@alarmDate, "Custom", "HH:mm")
+            createAlarm("朝じたく｜{@pattern}", @timeText, false)
+            @made = @made + 1
+        }
         alert("{@pattern} をセットしました。\n{@made}個のアラームを作成しました。", "朝じたく")
     }
 }
@@ -84,17 +94,17 @@ menu "朝じたく" {
         @offsetLabels = list("そのまま","-30分","-15分","-10分","-5分","+5分","+10分","+15分","+30分")
         @offsetChoice = chooseFromList(@offsetLabels, "今日だけ時刻をずらす")
         @offsetLabel = getText(@offsetChoice)
-        @offsetKey = "0"
-        if @offsetLabel == "-30分" { @offsetKey = "-30" }
-        if @offsetLabel == "-15分" { @offsetKey = "-15" }
-        if @offsetLabel == "-10分" { @offsetKey = "-10" }
-        if @offsetLabel == "-5分" { @offsetKey = "-5" }
-        if @offsetLabel == "+5分" { @offsetKey = "5" }
-        if @offsetLabel == "+10分" { @offsetKey = "10" }
-        if @offsetLabel == "+15分" { @offsetKey = "15" }
-        if @offsetLabel == "+30分" { @offsetKey = "30" }
+        @offsetMin = 0
+        if @offsetLabel == "-30分" { @offsetMin = -30 }
+        if @offsetLabel == "-15分" { @offsetMin = -15 }
+        if @offsetLabel == "-10分" { @offsetMin = -10 }
+        if @offsetLabel == "-5分" { @offsetMin = -5 }
+        if @offsetLabel == "+5分" { @offsetMin = 5 }
+        if @offsetLabel == "+10分" { @offsetMin = 10 }
+        if @offsetLabel == "+15分" { @offsetMin = 15 }
+        if @offsetLabel == "+30分" { @offsetMin = 30 }
 
-        setMorning(@cfg, @pattern, @offsetKey)
+        setMorning(@cfg, @pattern, @offsetMin)
 
     item "初期設定":
         @setupRaw = getClipboard()
