@@ -31,6 +31,7 @@ jobs:
           mkdir -p site/shortcuts
           ./cherri shortcuts/asa_jitaku_renkei.cherri --skip-sign
           ./cherri shortcuts/asa_jitaku_native.cherri --skip-sign
+          ./cherri shortcuts/asa_jitaku_native3.cherri --skip-sign
           ls shortcuts/*_unsigned.shortcut
 
       - name: Sign share-sheet shortcut
@@ -50,6 +51,15 @@ jobs:
           python3 -c "d=open('shortcuts/AsaJitakuNative2.shortcut','rb').read(); assert d[:4]==b'AEA1'"
           cp shortcuts/AsaJitakuNative2.shortcut site/shortcuts/AsaJitakuNative2.shortcut
           cd site/shortcuts && zip -q AsaJitakuNative2.zip AsaJitakuNative2.shortcut && cd -
+
+      - name: Sign import-config native shortcut v3
+        run: |
+          UNSIGNED=shortcuts/AsaJitakuNative3_unsigned.shortcut
+          python3 tools/sign_hubsign.py --input "$UNSIGNED" --output shortcuts/AsaJitakuNative3.shortcut --name AsaJitakuNative3
+          test -s shortcuts/AsaJitakuNative3.shortcut
+          python3 -c "d=open('shortcuts/AsaJitakuNative3.shortcut','rb').read(); assert d[:4]==b'AEA1'"
+          cp shortcuts/AsaJitakuNative3.shortcut site/shortcuts/AsaJitakuNative3.shortcut
+          cd site/shortcuts && zip -q AsaJitakuNative3.zip AsaJitakuNative3.shortcut && cd -
 
       - name: Assemble site
         run: cp -r web/. site/
