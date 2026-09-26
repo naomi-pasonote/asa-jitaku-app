@@ -28,6 +28,9 @@ h2{font-size:20px;margin:8px 2px 12px;color:#7c4b58}
 .chip{border:2px solid var(--line);background:#fffaf7;border-radius:15px;padding:12px 4px;font-size:16px;color:var(--ink)}
 .chip.on{background:var(--rose);border-color:var(--rose);color:white}
 .status{margin-top:18px;background:#fff;border:1px solid var(--line);border-radius:20px;padding:15px 16px;font-size:16px;line-height:1.5}
+.actionRow{margin-top:12px}
+.primary{width:100%;border:0;border-radius:18px;background:#a34a66;color:#fff;padding:17px 12px;font-size:20px;font-weight:700}
+.primary:disabled{opacity:.35}
 .note{font-size:14px;color:var(--muted);margin-top:10px;line-height:1.5}
 nav{position:fixed;left:0;right:0;bottom:0;background:#fffdf9;border-top:1px solid var(--line);display:flex;padding-bottom:env(safe-area-inset-bottom)}
 nav button{flex:1;border:0;background:none;padding:15px 4px;font-size:17px;color:var(--muted)}
@@ -38,14 +41,17 @@ nav button.on{color:#a34a66;font-weight:700}
 <body>
 <main>
 <h1>朝じたく</h1>
-<p class="sub">見やすいカードから、今夜のパターンを選びます。</p>
+<p class="sub">今夜のパターンを、見やすいカードから選びます。</p>
 <button class="wake" id="wake">起きました</button>
 <h2>今夜のパターン</h2>
 <div class="grid" id="grid"></div>
 <h2 style="margin-top:22px">今日だけ時刻をずらす</h2>
 <div class="offsets" id="offsets"></div>
 <div class="status" id="status">まだ選択していません。</div>
-<p class="note">この画面はカード表示のデザイン確認用です。現在正常に動いている AsaJitakuNative4 は変更しません。</p>
+<div class="actionRow">
+  <button class="primary" id="continueBtn" disabled>このパターンで進む</button>
+</div>
+<p class="note">現在正常に動いている AsaJitakuNative4 は変更していません。このページはカード画面の確認用です。</p>
 </main>
 <nav><button class="on">ホーム</button><button>パターン</button><button>設定</button></nav>
 <script>
@@ -65,12 +71,18 @@ function render(){
  grid.innerHTML=data.p.map((p,i)=>`<button class="card ${data.s===i?"sel":""}" data-i="${i}"><div class="dot">${data.s===i?"●":"○"}</div><div class="name">${p.n}</div><div class="meta">${p.c?`${p.t}<br>${p.g}分おき・${p.c}回`:"アラームなし"}</div></button>`).join("");
  const vals=[-30,-15,-10,-5,5,10,15,30];
  offsets.innerHTML=vals.map(v=>`<button class="chip ${data.o===v?"on":""}" data-o="${v}">${v>0?"+":""}${v}</button>`).join("");
- if(data.s==null) status.textContent="まだ選択していません。";
- else {const p=data.p[data.s];status.innerHTML=`<b>${p.n}</b><br>${p.c?`${p.t}・${p.g}分おき・${p.c}回`:"アラームなし"}${data.o?`　今日だけ ${data.o>0?"+":""}${data.o}分`:""}`;}
+ const btn=document.querySelector("#continueBtn");
+ if(data.s==null){ status.textContent="まだ選択していません。"; btn.disabled=true; }
+ else {
+   const p=data.p[data.s];
+   status.innerHTML=`<b>${p.n}</b><br>${p.c?`${p.t}・${p.g}分おき・${p.c}回`:"アラームなし"}${data.o?`　今日だけ ${data.o>0?"+":""}${data.o}分`:""}`;
+   btn.disabled=false;
+ }
 }
 grid.onclick=e=>{const b=e.target.closest("[data-i]");if(!b)return;data.s=+b.dataset.i;save();render()};
 offsets.onclick=e=>{const b=e.target.closest("[data-o]");if(!b)return;const v=+b.dataset.o;data.o=data.o===v?0:v;save();render()};
-document.querySelector("#wake").onclick=()=>alert("デザイン確認版です。アラーム停止処理は AsaJitakuNative4 のまま残しています。");
+document.querySelector("#wake").onclick=()=>alert("デザイン確認版です。実際の『起きました』処理は、現在正常に動いている AsaJitakuNative4 をそのまま使います。");
+document.querySelector("#continueBtn").onclick=()=>alert("カード選択までは完成しています。次の段階で、現在の正常動作版を壊さない方法でアラーム処理との接続を追加します。");
 render();
 </script>
 </body>
