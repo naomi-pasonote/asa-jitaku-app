@@ -70,8 +70,16 @@ const DEFAULTS=[
  {n:"モーニング",t:"7:30",g:5,c:10,code:"AJK:morning",icon:"☕️"},
  {n:"平日登校日",t:"6:30",g:4,c:10,code:"AJK:school",icon:"📚"}
 ];
-const K="asajitaku.cards.prototype.v2";
-let data=(()=>{try{return JSON.parse(localStorage.getItem(K))||{p:DEFAULTS,s:null,o:0}}catch(e){return{p:DEFAULTS,s:null,o:0}}})();
+const K="asajitaku.cards.prototype.v3";
+let data=(()=>{try{
+ const saved=JSON.parse(localStorage.getItem(K));
+ if(saved&&Array.isArray(saved.p)){
+   saved.p=saved.p.map((p,i)=>({...DEFAULTS[i],...p,code:DEFAULTS[i]?.code||p.code,icon:DEFAULTS[i]?.icon||p.icon}));
+   return saved;
+ }
+}catch(e){}
+return{p:DEFAULTS.map(x=>({...x})),s:null,o:0};
+})();
 const grid=document.querySelector("#grid"),status=document.querySelector("#status"),offsets=document.querySelector("#offsets");
 function save(){localStorage.setItem(K,JSON.stringify(data))}
 function render(){
@@ -136,7 +144,7 @@ document.querySelector("#wake").onclick=async()=>{
 document.querySelector("#continueBtn").onclick=async()=>{
   if(data.s==null)return;
   const p=data.p[data.s];
-  const ok=await copyCode(p.code);
+  const ok=await copyCode(codeFor(p));
   const cs=document.querySelector("#copyState");
   cs.style.display="block";
   cs.textContent=ok?"✓ 選択内容をコピーしました":"コピーできませんでした";
