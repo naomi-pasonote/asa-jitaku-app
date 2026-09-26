@@ -17,17 +17,17 @@ h1{margin:4px 0 4px;font-size:34px;letter-spacing:.05em;color:#a34a66}
 .sub{margin:0 0 18px;color:var(--muted);font-size:16px}
 .wake{width:100%;border:0;border-radius:28px;background:var(--rose);color:white;font-size:32px;font-weight:700;padding:27px 12px;margin-bottom:22px;box-shadow:0 8px 22px #c9667e30}
 h2{font-size:20px;margin:8px 2px 12px;color:#7c4b58}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.card{border:0;border-radius:24px;padding:18px 16px;min-height:142px;text-align:left;color:var(--ink);box-shadow:0 5px 16px #775b6214;position:relative}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.card{border:0;border-radius:24px;padding:18px 16px;min-height:148px;text-align:left;color:var(--ink);box-shadow:0 6px 18px #775b6218;position:relative;transition:transform .08s ease,box-shadow .08s ease}
 .card:nth-child(4n+1){background:#f5d9df}.card:nth-child(4n+2){background:#f7e1d6}.card:nth-child(4n+3){background:#e3eadf}.card:nth-child(4n+4){background:#f3e7d8}
-.card.sel{outline:4px solid var(--rose)}
-.name{font-size:23px;font-weight:800;line-height:1.25;margin-bottom:12px}
+.card:active{transform:scale(.985)}.card.sel{outline:4px solid var(--rose);box-shadow:0 8px 24px #c9667e28}
+.name{font-size:23px;font-weight:800;line-height:1.25;margin:2px 28px 12px 0}
 .meta{font-size:17px;line-height:1.45;color:#664d53}
 .dot{position:absolute;right:15px;top:14px;font-size:25px;color:#b26479}
 .offsets{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
 .chip{border:2px solid var(--line);background:#fffaf7;border-radius:15px;padding:12px 4px;font-size:16px;color:var(--ink)}
 .chip.on{background:var(--rose);border-color:var(--rose);color:white}
-.status{margin-top:18px;background:#fff;border:1px solid var(--line);border-radius:20px;padding:15px 16px;font-size:16px;line-height:1.5}
+.status{margin-top:18px;background:#fff;border:1px solid var(--line);border-radius:20px;padding:16px 17px;font-size:16px;line-height:1.55;box-shadow:0 4px 14px #775b620d}
 .actionRow{margin-top:12px}
 .primary{width:100%;border:0;border-radius:18px;background:#a34a66;color:#fff;padding:17px 12px;font-size:20px;font-weight:700}
 .primary:disabled{opacity:.35}
@@ -43,11 +43,12 @@ nav button.on{color:#a34a66;font-weight:700}
 <h1>朝じたく</h1>
 <p class="sub">今夜のパターンを、見やすいカードから選びます。</p>
 <button class="wake" id="wake">起きました</button>
-<h2>今夜のパターン</h2>
+<h2>今夜のパターン</h2><p class="sub" style="margin:-4px 2px 12px">カードをタップして選択します。</p>
 <div class="grid" id="grid"></div>
-<h2 style="margin-top:22px">今日だけ時刻をずらす</h2>
+<h2 style="margin-top:24px">今日だけ時刻をずらす</h2><p class="sub" style="margin:-4px 2px 10px">必要な日だけ変更できます。</p>
 <div class="offsets" id="offsets"></div>
 <div class="status" id="status">まだ選択していません。</div>
+<div id="copyState" style="display:none;margin-top:10px;text-align:center;font-size:15px;color:#a34a66;font-weight:700"></div>
 <div class="actionRow">
   <button class="primary" id="continueBtn" disabled>このパターンで進む</button>
 </div>
@@ -99,18 +100,25 @@ grid.onclick=async e=>{
   data.s=+b.dataset.i; save(); render();
   const p=data.p[data.s];
   const ok=await copyCode(p.code);
-  status.innerHTML=`<b>${p.n}</b><br>${p.c?`${p.t}・${p.g}分おき・${p.c}回`:"アラームなし"}<br><span style="color:#a34a66">${ok?"選択内容をコピーしました。次にホーム画面の「朝じたくカード」をタップしてください。":"コピーできませんでした。Safariでこのページを開き直してください。"}</span>`;
+  const cs=document.querySelector("#copyState");
+  cs.style.display="block";
+  cs.textContent=ok?"✓ 選択内容をコピーしました":"コピーできませんでした";
+  status.innerHTML=`<b>${p.n}</b><br>${p.c?`${p.t}・${p.g}分おき・${p.c}回`:"アラームなし"}`;
 };
 offsets.onclick=e=>{const b=e.target.closest("[data-o]");if(!b)return;const v=+b.dataset.o;data.o=data.o===v?0:v;save();render()};
 document.querySelector("#wake").onclick=async()=>{
   const ok=await copyCode("AJK:wake");
-  alert(ok?"「起きました」をコピーしました。次にホーム画面の「朝じたくカード」をタップしてください。":"コピーできませんでした。Safariでこのページを開き直してください。");
+  const cs=document.querySelector("#copyState");
+  cs.style.display="block";
+  cs.textContent=ok?"✓ 「起きました」をコピーしました":"コピーできませんでした";
 };
 document.querySelector("#continueBtn").onclick=async()=>{
   if(data.s==null)return;
   const p=data.p[data.s];
   const ok=await copyCode(p.code);
-  alert(ok?"選択内容をコピーしました。次にホーム画面の「朝じたくカード」をタップしてください。":"コピーできませんでした。Safariでこのページを開き直してください。");
+  const cs=document.querySelector("#copyState");
+  cs.style.display="block";
+  cs.textContent=ok?"✓ 選択内容をコピーしました":"コピーできませんでした";
 };
 render();
 </script>
