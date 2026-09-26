@@ -1,0 +1,205 @@
+#include 'actions/calendar'
+#include 'actions/text'
+#include 'actions/math'
+
+#define name AsaJitakuCards1
+#define color pink
+#define glyph alarmClock
+#define version 26
+
+/* このファイルはPublicリポジトリで公開される。個人のパターン名・時刻は含まない。
+   実際の値は、ビルド時にリポジトリ シークレット "PATTERNS_CARDS_CHERRI" の内容で
+   下の PATTERNS ブロックが自動的に置き換えられてからコンパイル・署名される。
+   AsaJitakuNative4 (asa_jitaku_native.cherri) とは別ファイル・別ショートカットで、
+   そちらのアラーム作成/起きました処理は変更していない。 */
+
+@baseMin = 0
+@gap = 0
+@count = 0
+@offsetMin = 0
+@patName = ""
+
+menu "朝じたく" {
+item "今夜のアラームをセット":
+    /* PATTERNS_START */
+    @p1Name = "パターンA"
+    @p1Time = "7:00"
+    @p1Gap = 5
+    @p1Count = 10
+    @p1Base = 420
+    @p2Name = "パターンB"
+    @p2Time = "8:00"
+    @p2Gap = 5
+    @p2Count = 10
+    @p2Base = 480
+    @p3Name = "パターンC"
+    @p3Time = "9:00"
+    @p3Gap = 5
+    @p3Count = 10
+    @p3Base = 540
+    @p4Name = "休日"
+    @p4Time = ""
+    @p4Gap = 0
+    @p4Count = 0
+    @p4Base = 0
+    @p5Name = "パターンD"
+    @p5Time = "7:30"
+    @p5Gap = 5
+    @p5Count = 10
+    @p5Base = 450
+    @p6Name = "パターンE"
+    @p6Time = "6:30"
+    @p6Gap = 5
+    @p6Count = 10
+    @p6Base = 390
+    /* PATTERNS_END */
+
+    @p1Card = "{@p1Name}"
+    if @p1Count > 0 { @p1Card = "{@p1Name}\n{@p1Time} ・ {@p1Gap}分おき ・ {@p1Count}回" } else { @p1Card = "{@p1Name}\nアラームなし" }
+    @p2Card = "{@p2Name}"
+    if @p2Count > 0 { @p2Card = "{@p2Name}\n{@p2Time} ・ {@p2Gap}分おき ・ {@p2Count}回" } else { @p2Card = "{@p2Name}\nアラームなし" }
+    @p3Card = "{@p3Name}"
+    if @p3Count > 0 { @p3Card = "{@p3Name}\n{@p3Time} ・ {@p3Gap}分おき ・ {@p3Count}回" } else { @p3Card = "{@p3Name}\nアラームなし" }
+    @p4Card = "{@p4Name}"
+    if @p4Count > 0 { @p4Card = "{@p4Name}\n{@p4Time} ・ {@p4Gap}分おき ・ {@p4Count}回" } else { @p4Card = "{@p4Name}\nアラームなし" }
+    @p5Card = "{@p5Name}"
+    if @p5Count > 0 { @p5Card = "{@p5Name}\n{@p5Time} ・ {@p5Gap}分おき ・ {@p5Count}回" } else { @p5Card = "{@p5Name}\nアラームなし" }
+    @p6Card = "{@p6Name}"
+    if @p6Count > 0 { @p6Card = "{@p6Name}\n{@p6Time} ・ {@p6Gap}分おき ・ {@p6Count}回" } else { @p6Card = "{@p6Name}\nアラームなし" }
+
+    @cardList = list(@p1Card, @p2Card, @p3Card, @p4Card, @p5Card, @p6Card)
+    @chosenV = chooseFromList(@cardList, "パターンを選んでください")
+    @chosen = getText(@chosenV)
+
+    if @chosen == @p1Card {
+        @baseMin = @p1Base
+        @gap = @p1Gap
+        @count = @p1Count
+        @patName = @p1Name
+    } else if @chosen == @p2Card {
+        @baseMin = @p2Base
+        @gap = @p2Gap
+        @count = @p2Count
+        @patName = @p2Name
+    } else if @chosen == @p3Card {
+        @baseMin = @p3Base
+        @gap = @p3Gap
+        @count = @p3Count
+        @patName = @p3Name
+    } else if @chosen == @p4Card {
+        @baseMin = @p4Base
+        @gap = @p4Gap
+        @count = @p4Count
+        @patName = @p4Name
+    } else if @chosen == @p5Card {
+        @baseMin = @p5Base
+        @gap = @p5Gap
+        @count = @p5Count
+        @patName = @p5Name
+    } else {
+        @baseMin = @p6Base
+        @gap = @p6Gap
+        @count = @p6Count
+        @patName = @p6Name
+    }
+
+    menu "今日だけ時刻をずらしますか？" {
+    item "そのまま":
+        @offsetMin = 0
+    item "+5分":
+        @offsetMin = 5
+    item "+10分":
+        @offsetMin = 10
+    item "+15分":
+        @offsetMin = 15
+    item "+30分":
+        @offsetMin = 30
+    item "-5分":
+        @offsetMin = -5
+    item "-10分":
+        @offsetMin = -10
+    item "-15分":
+        @offsetMin = -15
+    item "-30分":
+        @offsetMin = -30
+    }
+    @alarms = getAlarms()
+    for alarm in @alarms {
+        @rawName = getName(@alarm)
+        @alarmName = getText(@rawName)
+        if @alarmName beginsWith "朝じたく｜" {
+            deleteAlarm(@alarm)
+        }
+    }
+    if @count > 0 {
+        @totalBase = @baseMin + @offsetMin
+        @made = 0
+        repeat i for @count {
+            @gapi = @gap * @i
+            @thisMin = @totalBase + @gapi
+            @hhRaw = @thisMin / 60
+            @hh = floor(@hhRaw)
+            @mmRaw = @hh * 60
+            @mm = @thisMin - @mmRaw
+            @hhPad = @hh
+            if @hh < 10 {
+                @hhPad = "0{@hh}"
+            }
+            @mmPad = @mm
+            if @mm < 10 {
+                @mmPad = "0{@mm}"
+            }
+            @timeText = "{@hhPad}:{@mmPad}"
+            createAlarm("朝じたく｜{@patName}", @timeText, false)
+            @made = @made + 1
+        }
+        alert("{@patName} を {@made}件 セットしました。", "朝じたく")
+    } else {
+        alert("休日：アラームなしにしました。", "朝じたく")
+    }
+item "起きました":
+    @alarms2 = getAlarms()
+    @stopped = 0
+    for alarm in @alarms2 {
+        @rawName2 = getName(@alarm)
+        @alarmName2 = getText(@rawName2)
+        if @alarmName2 beginsWith "朝じたく｜" {
+            turnOffAlarm(@alarm, false)
+            @stopped = @stopped + 1
+        }
+    }
+    alert("残りの朝じたくアラームを止めました。", "朝じたく")
+item "テスト（2・4・6分後）":
+    @alarms3 = getAlarms()
+    for alarm in @alarms3 {
+        @rawName3 = getName(@alarm)
+        @alarmName3 = getText(@rawName3)
+        if @alarmName3 beginsWith "朝じたく｜" {
+            deleteAlarm(@alarm)
+        }
+    }
+    @now = currentDate()
+    @nowHtxt = formatDate(@now, "Custom", "HH")
+    @nowMtxt = formatDate(@now, "Custom", "mm")
+    @nowH = getNumbers(@nowHtxt)
+    @nowM = getNumbers(@nowMtxt)
+    @totalNow = (@nowH * 60) + @nowM
+    repeat k for 3 {
+        @kk = @k * 2
+        @tmin = @totalNow + @kk
+        @thhRaw = @tmin / 60
+        @thhUnwrapped = floor(@thhRaw)
+        @thh = @thhUnwrapped - 0
+        if @thhUnwrapped > 23 {
+            @thh = @thhUnwrapped - 24
+        }
+        @tmm = @tmin - (@thhUnwrapped * 60)
+        @thhPad = @thh
+        if @thh < 10 { @thhPad = "0{@thh}" }
+        @tmmPad = @tmm
+        if @tmm < 10 { @tmmPad = "0{@tmm}" }
+        @testTimeText = "{@thhPad}:{@tmmPad}"
+        createAlarm("朝じたく｜テスト", @testTimeText, false)
+    }
+    alert("2・4・6分後にテストアラームを3件セットしました。", "朝じたく")
+}
