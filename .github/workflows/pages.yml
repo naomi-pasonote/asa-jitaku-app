@@ -58,8 +58,66 @@ jobs:
           python3 tools/sign_hubsign.py --input "$UNSIGNED" --output shortcuts/asa-jitaku-native.shortcut --name AsaJitakuNative4
           test -s shortcuts/asa-jitaku-native.shortcut
           python3 -c "d=open('shortcuts/asa-jitaku-native.shortcut','rb').read(); assert d[:4]==b'AEA1', 'not a signed shortcut file'"
+          rm -f shortcuts/*_unsigned.shortcut
           cp shortcuts/asa-jitaku-native.shortcut site/shortcuts/asa-jitaku-native.shortcut
           cd site/shortcuts && zip -q asa-jitaku-native.zip asa-jitaku-native.shortcut && cd -
+
+      - name: Inject patterns for cards variant from existing private secret
+        env:
+          PATTERNS_CHERRI: ${{ secrets.PATTERNS_CHERRI }}
+        run: |
+          python3 - <<'PYEOF'
+          import os, re
+          src = "shortcuts/asa_jitaku_cards.cherri"
+          patterns = os.environ.get("PATTERNS_CHERRI", "")
+          text = open(src, encoding="utf-8").read()
+          if patterns.strip():
+              blocks = re.findall(r'item\s+"([^"]+)":\s*(.*?)(?=\n\s*item\s+"|\Z)', patterns, flags=re.S)
+              rows = []
+              for name, body in blocks:
+                  def num(field, default=0):
+                      m = re.search(r'@'+field+r'\s*=\s*(-?\d+)', body)
+                      return int(m.group(1)) if m else default
+                  base = num('baseMin')
+                  gap = num('gap')
+                  count = num('count')
+                  pm = re.search(r'@patName\s*=\s*"([^"]*)"', body)
+                  pat = pm.group(1) if pm else name
+                  t = "" if count == 0 else f"{base//60}:{base%60:02d}"
+                  rows.append((pat,t,gap,count,base))
+              if len(rows) != 6:
+                  raise SystemExit(f"expected 6 patterns, got {len(rows)}")
+              out=[]
+              for i,(name,t,gap,count,base) in enumerate(rows,1):
+                  out += [
+                      f'    @p{i}Name = "{name}"',
+                      f'    @p{i}Time = "{t}"',
+                      f'    @p{i}Gap = {gap}',
+                      f'    @p{i}Count = {count}',
+                      f'    @p{i}Base = {base}',
+                  ]
+              repl = "/* PATTERNS_START */\n" + "\n".join(out) + "\n    /* PATTERNS_END */"
+              text = re.sub(r'/\* PATTERNS_START \*/.*?/\* PATTERNS_END \*/', repl, text, flags=re.S)
+              print("cards patterns: derived from PATTERNS_CHERRI")
+          else:
+              print("cards patterns: secret not set, using public placeholder")
+          open(src, "w", encoding="utf-8").write(text)
+          PYEOF
+
+      - name: Compile cards shortcut (unsigned)
+        run: |
+          ./cherri shortcuts/asa_jitaku_cards.cherri --skip-sign
+          ls shortcuts/*_unsigned.shortcut
+
+      - name: Fix missing WFWorkflowName and sign cards variant (HubSign)
+        run: |
+          UNSIGNED=$(ls shortcuts/*_unsigned.shortcut | head -n1)
+          python3 tools/sign_hubsign.py --input "$UNSIGNED" --output shortcuts/asa-jitaku-cards.shortcut --name AsaJitakuCards1
+          test -s shortcuts/asa-jitaku-cards.shortcut
+          python3 -c "d=open('shortcuts/asa-jitaku-cards.shortcut','rb').read(); assert d[:4]==b'AEA1', 'not a signed shortcut file'"
+          rm -f shortcuts/*_unsigned.shortcut
+          cp shortcuts/asa-jitaku-cards.shortcut site/shortcuts/asa-jitaku-cards.shortcut
+          cd site/shortcuts && zip -q asa-jitaku-cards.zip asa-jitaku-cards.shortcut && cd -
 
       - name: Assemble site
         run: cp -r web/. site/
