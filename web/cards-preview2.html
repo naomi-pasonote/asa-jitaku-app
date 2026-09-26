@@ -86,6 +86,11 @@ function render(){
    btn.disabled=false;
  }
 }
+function codeFor(p){
+  if(!p)return "";
+  if(!data.o)return p.code;
+  return p.code+":"+(data.o>0?"+":"")+data.o;
+}
 async function copyCode(code){
   try{
     await navigator.clipboard.writeText(code);
@@ -105,13 +110,23 @@ grid.onclick=async e=>{
   const b=e.target.closest("[data-i]"); if(!b)return;
   data.s=+b.dataset.i; save(); render();
   const p=data.p[data.s];
-  const ok=await copyCode(p.code);
+  const ok=await copyCode(codeFor(p));
   const cs=document.querySelector("#copyState");
   cs.style.display="block";
   cs.textContent=ok?"✓ 選択内容をコピーしました":"コピーできませんでした";
   status.innerHTML=`<b>${p.n}</b><br>${p.c?`${p.t}・${p.g}分おき・${p.c}回`:"アラームなし"}`;
 };
-offsets.onclick=e=>{const b=e.target.closest("[data-o]");if(!b)return;data.o=+b.dataset.o;save();render()};
+offsets.onclick=async e=>{
+  const b=e.target.closest("[data-o]");if(!b)return;
+  data.o=+b.dataset.o;save();render();
+  if(data.s!=null){
+    const p=data.p[data.s];
+    const ok=await copyCode(codeFor(p));
+    const cs=document.querySelector("#copyState");
+    cs.style.display="block";
+    cs.textContent=ok?"✓ 時刻変更もコピーしました":"コピーできませんでした";
+  }
+};
 document.querySelector("#wake").onclick=async()=>{
   const ok=await copyCode("AJK:wake");
   const cs=document.querySelector("#copyState");
