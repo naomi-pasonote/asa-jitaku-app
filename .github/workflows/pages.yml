@@ -83,6 +83,8 @@ jobs:
                   count = num('count')
                   pm = re.search(r'@patName\s*=\s*"([^"]*)"', body)
                   pat = pm.group(1) if pm else name
+                  if pat == "日曜レッスン":
+                      pat = "日曜日"
                   t = "" if count == 0 else f"{base//60}:{base%60:02d}"
                   rows.append((pat,t,gap,count,base))
               if len(rows) != 6:
