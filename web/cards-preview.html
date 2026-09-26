@@ -50,14 +50,14 @@ nav button.on{color:#a34a66;font-weight:700}
 <nav><button class="on">ホーム</button><button>パターン</button><button>設定</button></nav>
 <script>
 const DEFAULTS=[
- {n:"パターン1",t:"6:30",g:5,c:10},
- {n:"パターン2",t:"7:00",g:5,c:10},
- {n:"パターン3",t:"8:00",g:5,c:10},
+ {n:"東二・出勤",t:"6:28",g:3,c:10},
+ {n:"パシーナ・出勤",t:"5:55",g:3,c:10},
+ {n:"日曜日",t:"9:00",g:5,c:10},
  {n:"休日",t:"",g:0,c:0},
- {n:"パターン4",t:"7:30",g:5,c:10},
- {n:"パターン5",t:"6:45",g:5,c:10}
+ {n:"モーニング",t:"7:30",g:5,c:10},
+ {n:"平日登校日",t:"6:30",g:4,c:10}
 ];
-const K="asajitaku.cards.prototype.v1";
+const K="asajitaku.cards.prototype.v2";
 let data=(()=>{try{return JSON.parse(localStorage.getItem(K))||{p:DEFAULTS,s:null,o:0}}catch(e){return{p:DEFAULTS,s:null,o:0}}})();
 const grid=document.querySelector("#grid"),status=document.querySelector("#status"),offsets=document.querySelector("#offsets");
 function save(){localStorage.setItem(K,JSON.stringify(data))}
