@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="朝じたく カード">
+<meta name="theme-color" content="#fbf5ea">
+<title>朝じたく カード</title>
+<style>
+:root{--iv:#fbf5ea;--rose:#c9667e;--rose2:#e6a0b1;--peach:#f7dfd2;--green:#dfe9dc;--pink:#f4dce0;--ink:#4a3438;--muted:#8b7378;--line:#eadbd6}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--iv);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif}
+body{padding:env(safe-area-inset-top) 0 calc(86px + env(safe-area-inset-bottom))}
+main{max-width:620px;margin:0 auto;padding:18px 18px 26px}
+h1{margin:4px 0 4px;font-size:34px;letter-spacing:.05em;color:#a34a66}
+.sub{margin:0 0 18px;color:var(--muted);font-size:16px}
+.wake{width:100%;border:0;border-radius:28px;background:var(--rose);color:white;font-size:32px;font-weight:700;padding:27px 12px;margin-bottom:22px;box-shadow:0 8px 22px #c9667e30}
+h2{font-size:20px;margin:8px 2px 12px;color:#7c4b58}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.card{border:0;border-radius:24px;padding:18px 16px;min-height:142px;text-align:left;color:var(--ink);box-shadow:0 5px 16px #775b6214;position:relative}
+.card:nth-child(4n+1){background:#f5d9df}.card:nth-child(4n+2){background:#f7e1d6}.card:nth-child(4n+3){background:#e3eadf}.card:nth-child(4n+4){background:#f3e7d8}
+.card.sel{outline:4px solid var(--rose)}
+.name{font-size:23px;font-weight:800;line-height:1.25;margin-bottom:12px}
+.meta{font-size:17px;line-height:1.45;color:#664d53}
+.dot{position:absolute;right:15px;top:14px;font-size:25px;color:#b26479}
+.offsets{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+.chip{border:2px solid var(--line);background:#fffaf7;border-radius:15px;padding:12px 4px;font-size:16px;color:var(--ink)}
+.chip.on{background:var(--rose);border-color:var(--rose);color:white}
+.status{margin-top:18px;background:#fff;border:1px solid var(--line);border-radius:20px;padding:15px 16px;font-size:16px;line-height:1.5}
+.actionRow{margin-top:12px}
+.primary{width:100%;border:0;border-radius:18px;background:#a34a66;color:#fff;padding:17px 12px;font-size:20px;font-weight:700}
+.primary:disabled{opacity:.35}
+.note{font-size:14px;color:var(--muted);margin-top:10px;line-height:1.5}
+nav{position:fixed;left:0;right:0;bottom:0;background:#fffdf9;border-top:1px solid var(--line);display:flex;padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;border:0;background:none;padding:15px 4px;font-size:17px;color:var(--muted)}
+nav button.on{color:#a34a66;font-weight:700}
+@media(max-width:390px){.name{font-size:21px}.meta{font-size:16px}.card{min-height:132px;padding:16px 14px}}
+</style>
+</head>
+<body>
+<main>
+<h1>朝じたく</h1>
+<p class="sub">今夜のパターンを、見やすいカードから選びます。</p>
+<button class="wake" id="wake">起きました</button>
+<h2>今夜のパターン</h2>
+<div class="grid" id="grid"></div>
+<h2 style="margin-top:22px">今日だけ時刻をずらす</h2>
+<div class="offsets" id="offsets"></div>
+<div class="status" id="status">まだ選択していません。</div>
+<div class="actionRow">
+  <button class="primary" id="continueBtn" disabled>このパターンで進む</button>
+</div>
+<p class="note">現在正常に動いている AsaJitakuNative4 は変更していません。このページはカード画面の確認用です。</p>
+</main>
+<nav><button class="on">ホーム</button><button>パターン</button><button>設定</button></nav>
+<script>
+const DEFAULTS=[
+ {n:"東二・出勤",t:"6:28",g:3,c:10},
+ {n:"パシーナ・出勤",t:"5:55",g:3,c:10},
+ {n:"日曜日",t:"9:00",g:5,c:10},
+ {n:"休日",t:"",g:0,c:0},
+ {n:"モーニング",t:"7:30",g:5,c:10},
+ {n:"平日登校日",t:"6:30",g:4,c:10}
+];
+const K="asajitaku.cards.prototype.v2";
+let data=(()=>{try{return JSON.parse(localStorage.getItem(K))||{p:DEFAULTS,s:null,o:0}}catch(e){return{p:DEFAULTS,s:null,o:0}}})();
+const grid=document.querySelector("#grid"),status=document.querySelector("#status"),offsets=document.querySelector("#offsets");
+function save(){localStorage.setItem(K,JSON.stringify(data))}
+function render(){
+ grid.innerHTML=data.p.map((p,i)=>`<button class="card ${data.s===i?"sel":""}" data-i="${i}"><div class="dot">${data.s===i?"●":"○"}</div><div class="name">${p.n}</div><div class="meta">${p.c?`${p.t}<br>${p.g}分おき・${p.c}回`:"アラームなし"}</div></button>`).join("");
+ const vals=[-30,-15,-10,-5,5,10,15,30];
+ offsets.innerHTML=vals.map(v=>`<button class="chip ${data.o===v?"on":""}" data-o="${v}">${v>0?"+":""}${v}</button>`).join("");
+ const btn=document.querySelector("#continueBtn");
+ if(data.s==null){ status.textContent="まだ選択していません。"; btn.disabled=true; }
+ else {
+   const p=data.p[data.s];
+   status.innerHTML=`<b>${p.n}</b><br>${p.c?`${p.t}・${p.g}分おき・${p.c}回`:"アラームなし"}${data.o?`　今日だけ ${data.o>0?"+":""}${data.o}分`:""}`;
+   btn.disabled=false;
+ }
+}
+grid.onclick=e=>{const b=e.target.closest("[data-i]");if(!b)return;data.s=+b.dataset.i;save();render()};
+offsets.onclick=e=>{const b=e.target.closest("[data-o]");if(!b)return;const v=+b.dataset.o;data.o=data.o===v?0:v;save();render()};
+document.querySelector("#wake").onclick=()=>alert("デザイン確認版です。実際の『起きました』処理は、現在正常に動いている AsaJitakuNative4 をそのまま使います。");
+document.querySelector("#continueBtn").onclick=()=>alert("カード選択までは完成しています。次の段階で、現在の正常動作版を壊さない方法でアラーム処理との接続を追加します。");
+render();
+</script>
+</body>
+</html>
