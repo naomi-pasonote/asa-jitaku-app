@@ -56,12 +56,12 @@ nav button.on{color:#a34a66;font-weight:700}
 <nav><button class="on">ホーム</button><button>パターン</button><button>設定</button></nav>
 <script>
 const DEFAULTS=[
- {n:"東二・出勤",t:"6:28",g:3,c:10},
- {n:"パシーナ・出勤",t:"5:55",g:3,c:10},
- {n:"日曜日",t:"9:00",g:5,c:10},
- {n:"休日",t:"",g:0,c:0},
- {n:"モーニング",t:"7:30",g:5,c:10},
- {n:"平日登校日",t:"6:30",g:4,c:10}
+ {n:"東二・出勤",t:"6:28",g:3,c:10,code:"AJK:higashi2"},
+ {n:"パシーナ・出勤",t:"5:55",g:3,c:10,code:"AJK:pasina"},
+ {n:"日曜日",t:"9:00",g:5,c:10,code:"AJK:sunday"},
+ {n:"休日",t:"",g:0,c:0,code:"AJK:holiday"},
+ {n:"モーニング",t:"7:30",g:5,c:10,code:"AJK:morning"},
+ {n:"平日登校日",t:"6:30",g:4,c:10,code:"AJK:school"}
 ];
 const K="asajitaku.cards.prototype.v2";
 let data=(()=>{try{return JSON.parse(localStorage.getItem(K))||{p:DEFAULTS,s:null,o:0}}catch(e){return{p:DEFAULTS,s:null,o:0}}})();
@@ -79,10 +79,39 @@ function render(){
    btn.disabled=false;
  }
 }
-grid.onclick=e=>{const b=e.target.closest("[data-i]");if(!b)return;data.s=+b.dataset.i;save();render()};
+async function copyCode(code){
+  try{
+    await navigator.clipboard.writeText(code);
+    return true;
+  }catch(e){
+    try{
+      const ta=document.createElement("textarea");
+      ta.value=code; ta.style.position="fixed"; ta.style.opacity="0";
+      document.body.appendChild(ta); ta.focus(); ta.select();
+      const ok=document.execCommand("copy");
+      ta.remove();
+      return ok;
+    }catch(_){ return false; }
+  }
+}
+grid.onclick=async e=>{
+  const b=e.target.closest("[data-i]"); if(!b)return;
+  data.s=+b.dataset.i; save(); render();
+  const p=data.p[data.s];
+  const ok=await copyCode(p.code);
+  status.innerHTML=`<b>${p.n}</b><br>${p.c?`${p.t}・${p.g}分おき・${p.c}回`:"アラームなし"}<br><span style="color:#a34a66">${ok?"選択内容をコピーしました。次にホーム画面の「朝じたくカード」をタップしてください。":"コピーできませんでした。Safariでこのページを開き直してください。"}</span>`;
+};
 offsets.onclick=e=>{const b=e.target.closest("[data-o]");if(!b)return;const v=+b.dataset.o;data.o=data.o===v?0:v;save();render()};
-document.querySelector("#wake").onclick=()=>alert("デザイン確認版です。実際の『起きました』処理は、現在正常に動いている AsaJitakuNative4 をそのまま使います。");
-document.querySelector("#continueBtn").onclick=()=>alert("カード選択までは完成しています。次の段階で、現在の正常動作版を壊さない方法でアラーム処理との接続を追加します。");
+document.querySelector("#wake").onclick=async()=>{
+  const ok=await copyCode("AJK:wake");
+  alert(ok?"「起きました」をコピーしました。次にホーム画面の「朝じたくカード」をタップしてください。":"コピーできませんでした。Safariでこのページを開き直してください。");
+};
+document.querySelector("#continueBtn").onclick=async()=>{
+  if(data.s==null)return;
+  const p=data.p[data.s];
+  const ok=await copyCode(p.code);
+  alert(ok?"選択内容をコピーしました。次にホーム画面の「朝じたくカード」をタップしてください。":"コピーできませんでした。Safariでこのページを開き直してください。");
+};
 render();
 </script>
 </body>
