@@ -1,0 +1,681 @@
+#include 'actions/calendar'
+#include 'actions/text'
+#include 'actions/math'
+#include 'actions/sharing'
+
+#define name AsaJitakuCards2
+#define color pink
+#define glyph alarmClock
+#define version 26
+
+/* このファイルはPublicリポジトリで公開される。個人のパターン名・時刻は含まない。
+   実際の値は、ビルド時にリポジトリ シークレットの内容で下の PATTERNS ブロックが
+   自動的に置き換えられてからコンパイル・署名される（AsaJitakuNative4 / AsaJitakuCards1
+   と同じ仕組み）。AsaJitakuNative4 / AsaJitakuCards1 のアラーム作成・起きました処理は
+   変更していない（同一ロジックをそのままコピー）。
+   起動時にクリップボードのコード(AJK:...)を確認し、一致すればメニューを出さず
+   直接その処理へ進む。一致しなければ従来どおりメニューを表示する。 */
+
+/* PATTERNS_START */
+@p1Name = "パターンA"
+@p1Time = "7:00"
+@p1Gap = 5
+@p1Count = 10
+@p1Base = 420
+@p2Name = "パターンB"
+@p2Time = "8:00"
+@p2Gap = 5
+@p2Count = 10
+@p2Base = 480
+@p3Name = "日曜日"
+@p3Time = "9:00"
+@p3Gap = 5
+@p3Count = 10
+@p3Base = 540
+@p4Name = "休日"
+@p4Time = ""
+@p4Gap = 0
+@p4Count = 0
+@p4Base = 0
+@p5Name = "パターンD"
+@p5Time = "7:30"
+@p5Gap = 5
+@p5Count = 10
+@p5Base = 450
+@p6Name = "パターンE"
+@p6Time = "6:30"
+@p6Gap = 4
+@p6Count = 10
+@p6Base = 390
+/* PATTERNS_END */
+
+@baseMin = 0
+@gap = 0
+@count = 0
+@offsetMin = 0
+@patName = ""
+
+@clipV = getClipboard()
+@clip = getText(@clipV)
+
+@matched = 0
+
+if @clip == "AJK:higashi2" {
+    @baseMin = @p1Base
+    @gap = @p1Gap
+    @count = @p1Count
+    @patName = @p1Name
+    @offsetMin = 0
+    @matched = 1
+}
+else if @clip == "AJK:higashi2:+5" {
+    @baseMin = @p1Base
+    @gap = @p1Gap
+    @count = @p1Count
+    @patName = @p1Name
+    @offsetMin = 5
+    @matched = 1
+}
+else if @clip == "AJK:higashi2:+10" {
+    @baseMin = @p1Base
+    @gap = @p1Gap
+    @count = @p1Count
+    @patName = @p1Name
+    @offsetMin = 10
+    @matched = 1
+}
+else if @clip == "AJK:higashi2:+15" {
+    @baseMin = @p1Base
+    @gap = @p1Gap
+    @count = @p1Count
+    @patName = @p1Name
+    @offsetMin = 15
+    @matched = 1
+}
+else if @clip == "AJK:higashi2:+30" {
+    @baseMin = @p1Base
+    @gap = @p1Gap
+    @count = @p1Count
+    @patName = @p1Name
+    @offsetMin = 30
+    @matched = 1
+}
+else if @clip == "AJK:higashi2:-5" {
+    @baseMin = @p1Base
+    @gap = @p1Gap
+    @count = @p1Count
+    @patName = @p1Name
+    @offsetMin = -5
+    @matched = 1
+}
+else if @clip == "AJK:higashi2:-10" {
+    @baseMin = @p1Base
+    @gap = @p1Gap
+    @count = @p1Count
+    @patName = @p1Name
+    @offsetMin = -10
+    @matched = 1
+}
+else if @clip == "AJK:higashi2:-15" {
+    @baseMin = @p1Base
+    @gap = @p1Gap
+    @count = @p1Count
+    @patName = @p1Name
+    @offsetMin = -15
+    @matched = 1
+}
+else if @clip == "AJK:higashi2:-30" {
+    @baseMin = @p1Base
+    @gap = @p1Gap
+    @count = @p1Count
+    @patName = @p1Name
+    @offsetMin = -30
+    @matched = 1
+}
+else if @clip == "AJK:pasina" {
+    @baseMin = @p2Base
+    @gap = @p2Gap
+    @count = @p2Count
+    @patName = @p2Name
+    @offsetMin = 0
+    @matched = 1
+}
+else if @clip == "AJK:pasina:+5" {
+    @baseMin = @p2Base
+    @gap = @p2Gap
+    @count = @p2Count
+    @patName = @p2Name
+    @offsetMin = 5
+    @matched = 1
+}
+else if @clip == "AJK:pasina:+10" {
+    @baseMin = @p2Base
+    @gap = @p2Gap
+    @count = @p2Count
+    @patName = @p2Name
+    @offsetMin = 10
+    @matched = 1
+}
+else if @clip == "AJK:pasina:+15" {
+    @baseMin = @p2Base
+    @gap = @p2Gap
+    @count = @p2Count
+    @patName = @p2Name
+    @offsetMin = 15
+    @matched = 1
+}
+else if @clip == "AJK:pasina:+30" {
+    @baseMin = @p2Base
+    @gap = @p2Gap
+    @count = @p2Count
+    @patName = @p2Name
+    @offsetMin = 30
+    @matched = 1
+}
+else if @clip == "AJK:pasina:-5" {
+    @baseMin = @p2Base
+    @gap = @p2Gap
+    @count = @p2Count
+    @patName = @p2Name
+    @offsetMin = -5
+    @matched = 1
+}
+else if @clip == "AJK:pasina:-10" {
+    @baseMin = @p2Base
+    @gap = @p2Gap
+    @count = @p2Count
+    @patName = @p2Name
+    @offsetMin = -10
+    @matched = 1
+}
+else if @clip == "AJK:pasina:-15" {
+    @baseMin = @p2Base
+    @gap = @p2Gap
+    @count = @p2Count
+    @patName = @p2Name
+    @offsetMin = -15
+    @matched = 1
+}
+else if @clip == "AJK:pasina:-30" {
+    @baseMin = @p2Base
+    @gap = @p2Gap
+    @count = @p2Count
+    @patName = @p2Name
+    @offsetMin = -30
+    @matched = 1
+}
+else if @clip == "AJK:sunday" {
+    @baseMin = @p3Base
+    @gap = @p3Gap
+    @count = @p3Count
+    @patName = @p3Name
+    @offsetMin = 0
+    @matched = 1
+}
+else if @clip == "AJK:sunday:+5" {
+    @baseMin = @p3Base
+    @gap = @p3Gap
+    @count = @p3Count
+    @patName = @p3Name
+    @offsetMin = 5
+    @matched = 1
+}
+else if @clip == "AJK:sunday:+10" {
+    @baseMin = @p3Base
+    @gap = @p3Gap
+    @count = @p3Count
+    @patName = @p3Name
+    @offsetMin = 10
+    @matched = 1
+}
+else if @clip == "AJK:sunday:+15" {
+    @baseMin = @p3Base
+    @gap = @p3Gap
+    @count = @p3Count
+    @patName = @p3Name
+    @offsetMin = 15
+    @matched = 1
+}
+else if @clip == "AJK:sunday:+30" {
+    @baseMin = @p3Base
+    @gap = @p3Gap
+    @count = @p3Count
+    @patName = @p3Name
+    @offsetMin = 30
+    @matched = 1
+}
+else if @clip == "AJK:sunday:-5" {
+    @baseMin = @p3Base
+    @gap = @p3Gap
+    @count = @p3Count
+    @patName = @p3Name
+    @offsetMin = -5
+    @matched = 1
+}
+else if @clip == "AJK:sunday:-10" {
+    @baseMin = @p3Base
+    @gap = @p3Gap
+    @count = @p3Count
+    @patName = @p3Name
+    @offsetMin = -10
+    @matched = 1
+}
+else if @clip == "AJK:sunday:-15" {
+    @baseMin = @p3Base
+    @gap = @p3Gap
+    @count = @p3Count
+    @patName = @p3Name
+    @offsetMin = -15
+    @matched = 1
+}
+else if @clip == "AJK:sunday:-30" {
+    @baseMin = @p3Base
+    @gap = @p3Gap
+    @count = @p3Count
+    @patName = @p3Name
+    @offsetMin = -30
+    @matched = 1
+}
+else if @clip == "AJK:holiday" {
+    @baseMin = @p4Base
+    @gap = @p4Gap
+    @count = @p4Count
+    @patName = @p4Name
+    @offsetMin = 0
+    @matched = 1
+}
+else if @clip == "AJK:holiday:+5" {
+    @baseMin = @p4Base
+    @gap = @p4Gap
+    @count = @p4Count
+    @patName = @p4Name
+    @offsetMin = 5
+    @matched = 1
+}
+else if @clip == "AJK:holiday:+10" {
+    @baseMin = @p4Base
+    @gap = @p4Gap
+    @count = @p4Count
+    @patName = @p4Name
+    @offsetMin = 10
+    @matched = 1
+}
+else if @clip == "AJK:holiday:+15" {
+    @baseMin = @p4Base
+    @gap = @p4Gap
+    @count = @p4Count
+    @patName = @p4Name
+    @offsetMin = 15
+    @matched = 1
+}
+else if @clip == "AJK:holiday:+30" {
+    @baseMin = @p4Base
+    @gap = @p4Gap
+    @count = @p4Count
+    @patName = @p4Name
+    @offsetMin = 30
+    @matched = 1
+}
+else if @clip == "AJK:holiday:-5" {
+    @baseMin = @p4Base
+    @gap = @p4Gap
+    @count = @p4Count
+    @patName = @p4Name
+    @offsetMin = -5
+    @matched = 1
+}
+else if @clip == "AJK:holiday:-10" {
+    @baseMin = @p4Base
+    @gap = @p4Gap
+    @count = @p4Count
+    @patName = @p4Name
+    @offsetMin = -10
+    @matched = 1
+}
+else if @clip == "AJK:holiday:-15" {
+    @baseMin = @p4Base
+    @gap = @p4Gap
+    @count = @p4Count
+    @patName = @p4Name
+    @offsetMin = -15
+    @matched = 1
+}
+else if @clip == "AJK:holiday:-30" {
+    @baseMin = @p4Base
+    @gap = @p4Gap
+    @count = @p4Count
+    @patName = @p4Name
+    @offsetMin = -30
+    @matched = 1
+}
+else if @clip == "AJK:morning" {
+    @baseMin = @p5Base
+    @gap = @p5Gap
+    @count = @p5Count
+    @patName = @p5Name
+    @offsetMin = 0
+    @matched = 1
+}
+else if @clip == "AJK:morning:+5" {
+    @baseMin = @p5Base
+    @gap = @p5Gap
+    @count = @p5Count
+    @patName = @p5Name
+    @offsetMin = 5
+    @matched = 1
+}
+else if @clip == "AJK:morning:+10" {
+    @baseMin = @p5Base
+    @gap = @p5Gap
+    @count = @p5Count
+    @patName = @p5Name
+    @offsetMin = 10
+    @matched = 1
+}
+else if @clip == "AJK:morning:+15" {
+    @baseMin = @p5Base
+    @gap = @p5Gap
+    @count = @p5Count
+    @patName = @p5Name
+    @offsetMin = 15
+    @matched = 1
+}
+else if @clip == "AJK:morning:+30" {
+    @baseMin = @p5Base
+    @gap = @p5Gap
+    @count = @p5Count
+    @patName = @p5Name
+    @offsetMin = 30
+    @matched = 1
+}
+else if @clip == "AJK:morning:-5" {
+    @baseMin = @p5Base
+    @gap = @p5Gap
+    @count = @p5Count
+    @patName = @p5Name
+    @offsetMin = -5
+    @matched = 1
+}
+else if @clip == "AJK:morning:-10" {
+    @baseMin = @p5Base
+    @gap = @p5Gap
+    @count = @p5Count
+    @patName = @p5Name
+    @offsetMin = -10
+    @matched = 1
+}
+else if @clip == "AJK:morning:-15" {
+    @baseMin = @p5Base
+    @gap = @p5Gap
+    @count = @p5Count
+    @patName = @p5Name
+    @offsetMin = -15
+    @matched = 1
+}
+else if @clip == "AJK:morning:-30" {
+    @baseMin = @p5Base
+    @gap = @p5Gap
+    @count = @p5Count
+    @patName = @p5Name
+    @offsetMin = -30
+    @matched = 1
+}
+else if @clip == "AJK:school" {
+    @baseMin = @p6Base
+    @gap = @p6Gap
+    @count = @p6Count
+    @patName = @p6Name
+    @offsetMin = 0
+    @matched = 1
+}
+else if @clip == "AJK:school:+5" {
+    @baseMin = @p6Base
+    @gap = @p6Gap
+    @count = @p6Count
+    @patName = @p6Name
+    @offsetMin = 5
+    @matched = 1
+}
+else if @clip == "AJK:school:+10" {
+    @baseMin = @p6Base
+    @gap = @p6Gap
+    @count = @p6Count
+    @patName = @p6Name
+    @offsetMin = 10
+    @matched = 1
+}
+else if @clip == "AJK:school:+15" {
+    @baseMin = @p6Base
+    @gap = @p6Gap
+    @count = @p6Count
+    @patName = @p6Name
+    @offsetMin = 15
+    @matched = 1
+}
+else if @clip == "AJK:school:+30" {
+    @baseMin = @p6Base
+    @gap = @p6Gap
+    @count = @p6Count
+    @patName = @p6Name
+    @offsetMin = 30
+    @matched = 1
+}
+else if @clip == "AJK:school:-5" {
+    @baseMin = @p6Base
+    @gap = @p6Gap
+    @count = @p6Count
+    @patName = @p6Name
+    @offsetMin = -5
+    @matched = 1
+}
+else if @clip == "AJK:school:-10" {
+    @baseMin = @p6Base
+    @gap = @p6Gap
+    @count = @p6Count
+    @patName = @p6Name
+    @offsetMin = -10
+    @matched = 1
+}
+else if @clip == "AJK:school:-15" {
+    @baseMin = @p6Base
+    @gap = @p6Gap
+    @count = @p6Count
+    @patName = @p6Name
+    @offsetMin = -15
+    @matched = 1
+}
+else if @clip == "AJK:school:-30" {
+    @baseMin = @p6Base
+    @gap = @p6Gap
+    @count = @p6Count
+    @patName = @p6Name
+    @offsetMin = -30
+    @matched = 1
+}
+
+
+if @matched == 1 {
+    @alarms = getAlarms()
+    for alarm in @alarms {
+        @rawName = getName(@alarm)
+        @alarmName = getText(@rawName)
+        if @alarmName beginsWith "朝じたく｜" {
+            deleteAlarm(@alarm)
+        }
+    }
+    if @count > 0 {
+        @totalBase = @baseMin + @offsetMin
+        @made = 0
+        repeat i for @count {
+            @gapi = @gap * @i
+            @thisMin = @totalBase + @gapi
+            @hhRaw = @thisMin / 60
+            @hh = floor(@hhRaw)
+            @mmRaw = @hh * 60
+            @mm = @thisMin - @mmRaw
+            @hhPad = @hh
+            if @hh < 10 {
+                @hhPad = "0{@hh}"
+            }
+            @mmPad = @mm
+            if @mm < 10 {
+                @mmPad = "0{@mm}"
+            }
+            @timeText = "{@hhPad}:{@mmPad}"
+            createAlarm("朝じたく｜{@patName}", @timeText, false)
+            @made = @made + 1
+        }
+        alert("{@patName} を {@made}件 セットしました。", "朝じたく")
+    } else {
+        alert("休日：アラームなしにしました。", "朝じたく")
+    }
+} else if @clip == "AJK:wake" {
+    @alarms2 = getAlarms()
+    @stopped = 0
+    for alarm in @alarms2 {
+        @rawName2 = getName(@alarm)
+        @alarmName2 = getText(@rawName2)
+        if @alarmName2 beginsWith "朝じたく｜" {
+            turnOffAlarm(@alarm, false)
+            @stopped = @stopped + 1
+        }
+    }
+    alert("残りの朝じたくアラームを止めました。", "朝じたく")
+} else {
+    menu "朝じたく" {
+    item "今夜のアラームをセット":
+        @patListNames = list(@p1Name, @p2Name, @p3Name, @p4Name, @p5Name, @p6Name)
+        @chosenNameV = chooseFromList(@patListNames, "パターンを選んでください")
+        @chosenName = getText(@chosenNameV)
+        if @chosenName == @p1Name {
+            @baseMin = @p1Base
+            @gap = @p1Gap
+            @count = @p1Count
+            @patName = @p1Name
+        } else if @chosenName == @p2Name {
+            @baseMin = @p2Base
+            @gap = @p2Gap
+            @count = @p2Count
+            @patName = @p2Name
+        } else if @chosenName == @p3Name {
+            @baseMin = @p3Base
+            @gap = @p3Gap
+            @count = @p3Count
+            @patName = @p3Name
+        } else if @chosenName == @p4Name {
+            @baseMin = @p4Base
+            @gap = @p4Gap
+            @count = @p4Count
+            @patName = @p4Name
+        } else if @chosenName == @p5Name {
+            @baseMin = @p5Base
+            @gap = @p5Gap
+            @count = @p5Count
+            @patName = @p5Name
+        } else {
+            @baseMin = @p6Base
+            @gap = @p6Gap
+            @count = @p6Count
+            @patName = @p6Name
+        }
+        menu "今日だけ時刻をずらしますか？" {
+        item "そのまま":
+            @offsetMin = 0
+        item "+5分":
+            @offsetMin = 5
+        item "+10分":
+            @offsetMin = 10
+        item "+15分":
+            @offsetMin = 15
+        item "+30分":
+            @offsetMin = 30
+        item "-5分":
+            @offsetMin = -5
+        item "-10分":
+            @offsetMin = -10
+        item "-15分":
+            @offsetMin = -15
+        item "-30分":
+            @offsetMin = -30
+        }
+        @alarmsM = getAlarms()
+        for alarm in @alarmsM {
+            @rawNameM = getName(@alarm)
+            @alarmNameM = getText(@rawNameM)
+            if @alarmNameM beginsWith "朝じたく｜" {
+                deleteAlarm(@alarm)
+            }
+        }
+        if @count > 0 {
+            @totalBaseM = @baseMin + @offsetMin
+            @madeM = 0
+            repeat j for @count {
+                @gapjM = @gap * @j
+                @thisMinM = @totalBaseM + @gapjM
+                @hhRawM = @thisMinM / 60
+                @hhM = floor(@hhRawM)
+                @mmRawM = @hhM * 60
+                @mmM = @thisMinM - @mmRawM
+                @hhPadM = @hhM
+                if @hhM < 10 {
+                    @hhPadM = "0{@hhM}"
+                }
+                @mmPadM = @mmM
+                if @mmM < 10 {
+                    @mmPadM = "0{@mmM}"
+                }
+                @timeTextM = "{@hhPadM}:{@mmPadM}"
+                createAlarm("朝じたく｜{@patName}", @timeTextM, false)
+                @madeM = @madeM + 1
+            }
+            alert("{@patName} を {@madeM}件 セットしました。", "朝じたく")
+        } else {
+            alert("休日：アラームなしにしました。", "朝じたく")
+        }
+    item "起きました":
+        @alarms3 = getAlarms()
+        @stopped3 = 0
+        for alarm in @alarms3 {
+            @rawName3 = getName(@alarm)
+            @alarmName3 = getText(@rawName3)
+            if @alarmName3 beginsWith "朝じたく｜" {
+                turnOffAlarm(@alarm, false)
+                @stopped3 = @stopped3 + 1
+            }
+        }
+        alert("残りの朝じたくアラームを止めました。", "朝じたく")
+    item "テスト（2・4・6分後）":
+        @alarms4 = getAlarms()
+        for alarm in @alarms4 {
+            @rawName4 = getName(@alarm)
+            @alarmName4 = getText(@rawName4)
+            if @alarmName4 beginsWith "朝じたく｜" {
+                deleteAlarm(@alarm)
+            }
+        }
+        @now = currentDate()
+        @nowHtxt = formatDate(@now, "Custom", "HH")
+        @nowMtxt = formatDate(@now, "Custom", "mm")
+        @nowH = getNumbers(@nowHtxt)
+        @nowM = getNumbers(@nowMtxt)
+        @totalNow = (@nowH * 60) + @nowM
+        repeat k for 3 {
+            @kk = @k * 2
+            @tmin = @totalNow + @kk
+            @thhRaw = @tmin / 60
+            @thhUnwrapped = floor(@thhRaw)
+            @thh = @thhUnwrapped - 0
+            if @thhUnwrapped > 23 {
+                @thh = @thhUnwrapped - 24
+            }
+            @tmm = @tmin - (@thhUnwrapped * 60)
+            @thhPad = @thh
+            if @thh < 10 { @thhPad = "0{@thh}" }
+            @tmmPad = @tmm
+            if @tmm < 10 { @tmmPad = "0{@tmm}" }
+            @testTimeText = "{@thhPad}:{@tmmPad}"
+            createAlarm("朝じたく｜テスト", @testTimeText, false)
+        }
+        alert("2・4・6分後にテストアラームを3件セットしました。", "朝じたく")
+    }
+}
