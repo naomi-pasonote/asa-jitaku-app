@@ -180,6 +180,21 @@ jobs:
           cp shortcuts/asa-jitaku-cards2.shortcut site/shortcuts/asa-jitaku-cards2.shortcut
           cd site/shortcuts && zip -q asa-jitaku-cards2.zip asa-jitaku-cards2.shortcut && cd -
 
+      - name: Compile cards2 debug shortcut (unsigned, no patterns needed)
+        run: |
+          ./cherri shortcuts/asa_jitaku_cards2_debug.cherri --skip-sign
+          ls shortcuts/*_unsigned.shortcut
+
+      - name: Fix missing WFWorkflowName and sign cards2 debug (HubSign)
+        run: |
+          UNSIGNED=$(ls shortcuts/*_unsigned.shortcut | head -n1)
+          python3 tools/sign_hubsign.py --input "$UNSIGNED" --output shortcuts/asa-jitaku-cards2-debug.shortcut --name AsaJitakuCards2Debug
+          test -s shortcuts/asa-jitaku-cards2-debug.shortcut
+          python3 -c "d=open('shortcuts/asa-jitaku-cards2-debug.shortcut','rb').read(); assert d[:4]==b'AEA1', 'not a signed shortcut file'"
+          rm -f shortcuts/*_unsigned.shortcut
+          cp shortcuts/asa-jitaku-cards2-debug.shortcut site/shortcuts/asa-jitaku-cards2-debug.shortcut
+          cd site/shortcuts && zip -q asa-jitaku-cards2-debug.zip asa-jitaku-cards2-debug.shortcut && cd -
+
       - name: Assemble site
         run: cp -r web/. site/
 
