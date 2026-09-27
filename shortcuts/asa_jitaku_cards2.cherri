@@ -60,7 +60,8 @@
 @wake = 0
 
 @clipV = getClipboard()
-@clip = getText(@clipV)
+@clipRaw = getText(@clipV)
+@clip = trimWhitespace(@clipRaw)
 @parts = splitText(@clip, ":")
 @partCount = count(@parts)
 
