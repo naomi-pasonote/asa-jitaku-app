@@ -1,0 +1,36 @@
+#include 'actions/calendar'
+#include 'actions/text'
+#include 'actions/sharing'
+
+#define name AsaJitakuCards2Debug
+#define color pink
+#define glyph alarmClock
+#define version 26
+
+/* 診断専用。アラームの作成・削除・停止は一切行わない。
+   クリップボードの内容と、それをどう解釈したかを1回のアラートで表示するだけ。
+   AsaJitakuNative4 / AsaJitakuCards1 / AsaJitakuCards2(本番)は変更していない。 */
+
+@clipV = getClipboard()
+@clipRaw = getText(@clipV)
+@clip = trimWhitespace(@clipRaw)
+@rawLen = count(@clipRaw, "Characters")
+@trimLen = count(@clip, "Characters")
+
+@parts = splitText(@clip, ":")
+@partCount = count(@parts)
+
+@codePart = "(partCountが1以下のため取得不可)"
+if @partCount > 1 {
+    @codePartV = getListItem(@parts, 2)
+    @codePart = getText(@codePartV)
+}
+
+@offsetPart = "(partCountが2以下のため無し)"
+if @partCount > 2 {
+    @offsetPartV = getListItem(@parts, 3)
+    @offsetPart = getText(@offsetPartV)
+}
+
+@msg = "生の値：[{@clipRaw}]（{@rawLen}文字）\ntrim後：[{@clip}]（{@trimLen}文字）\n\npartCount：{@partCount}\ncodePart：[{@codePart}]\noffsetPart：[{@offsetPart}]"
+alert(@msg, "朝じたく 診断")
