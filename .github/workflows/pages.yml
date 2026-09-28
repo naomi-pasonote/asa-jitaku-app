@@ -247,7 +247,7 @@ jobs:
       - name: Fix missing WFWorkflowName and sign reliable (HubSign)
         run: |
           UNSIGNED=$(ls shortcuts/*_unsigned.shortcut | head -n1)
-          python3 tools/sign_hubsign.py --input "$UNSIGNED" --output shortcuts/asa-jitaku-reliable1.shortcut --name AsaJitakuReliable1
+          python3 tools/sign_hubsign.py --input "$UNSIGNED" --output shortcuts/asa-jitaku-reliable1.shortcut --name AsaJitakuReliable1 --no-action-extension
           test -s shortcuts/asa-jitaku-reliable1.shortcut
           python3 -c "d=open('shortcuts/asa-jitaku-reliable1.shortcut','rb').read(); assert d[:4]==b'AEA1', 'not a signed shortcut file'"
           rm -f shortcuts/*_unsigned.shortcut
