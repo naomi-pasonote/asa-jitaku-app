@@ -128,7 +128,7 @@ item "今夜のアラームをセット":
         @rawName = getName(@alarm)
         @alarmName = getText(@rawName)
         if @alarmName beginsWith "朝じたく｜" {
-            deleteAlarm(@alarm)
+            turnOffAlarm(@alarm, false)
         }
     }
     if @count > 0 {
@@ -151,7 +151,20 @@ item "今夜のアラームをセット":
                 @mmPad = "0{@mm}"
             }
             @timeText = "{@hhPad}:{@mmPad}"
-            createAlarm("朝じたく｜{@patName}", @timeText, false)
+            @targetName = "朝じたく｜{@patName}｜{@timeText}"
+            @found = 0
+            @existingAlarms = getAlarms()
+            for existing in @existingAlarms {
+                @existingRawName = getName(@existing)
+                @existingName = getText(@existingRawName)
+                if @existingName == @targetName {
+                    turnOnAlarm(@existing, false)
+                    @found = 1
+                }
+            }
+            if @found == 0 {
+                createAlarm(@targetName, @timeText, false)
+            }
             @made = @made + 1
         }
         alert("{@patName} を {@made}件 セットしました。", "朝じたく")
@@ -176,7 +189,7 @@ item "テスト（2・4・6分後）":
         @rawName3 = getName(@alarm)
         @alarmName3 = getText(@rawName3)
         if @alarmName3 beginsWith "朝じたく｜" {
-            deleteAlarm(@alarm)
+            turnOffAlarm(@alarm, false)
         }
     }
     @now = currentDate()
