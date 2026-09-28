@@ -406,6 +406,49 @@ jobs:
           cp shortcuts/asa-jitaku-reliable4.shortcut site/shortcuts/asa-jitaku-reliable4.shortcut
           cd site/shortcuts && zip -q asa-jitaku-reliable4.zip asa-jitaku-reliable4.shortcut && cd -
 
+      - name: Inject values for reliable5 from existing private secret
+        env:
+          PATTERNS_CHERRI: ${{ secrets.PATTERNS_CHERRI }}
+        run: |
+          python3 - <<'PYEOF'
+          import os, re
+          src = "shortcuts/asa_jitaku_reliable5.cherri"
+          patterns = os.environ.get("PATTERNS_CHERRI", "")
+          text = open(src, encoding="utf-8").read()
+          if patterns.strip():
+              blocks = re.findall(r'item\s+"([^"]+)":\s*(.*?)(?=\n\s*item\s+"|\Z)', patterns, flags=re.S)
+              rows = []
+              for name, body in blocks:
+                  def num(field, default=0):
+                      m = re.search(r'@'+field+r'\s*=\s*(-?\d+)', body)
+                      return int(m.group(1)) if m else default
+                  rows.append((num('baseMin'), num('gap'), num('count')))
+              if len(rows) != 6:
+                  raise SystemExit(f"expected 6 patterns, got {len(rows)}")
+              out=[]
+              for i,(base,gap,count) in enumerate(rows,1):
+                  out += [f'@p{i}Base = {base}', f'@p{i}Gap = {gap}', f'@p{i}Count = {count}']
+              repl = "/* PATTERNS_START */\n" + "\n".join(out) + "\n/* PATTERNS_END */"
+              text = re.sub(r'/\* PATTERNS_START \*/.*?/\* PATTERNS_END \*/', repl, text, flags=re.S)
+              print("reliable5 values: derived from PATTERNS_CHERRI")
+          open(src, "w", encoding="utf-8").write(text)
+          PYEOF
+
+      - name: Compile reliable5 shortcut (unsigned)
+        run: |
+          ./cherri shortcuts/asa_jitaku_reliable5.cherri --skip-sign
+          ls shortcuts/*_unsigned.shortcut
+
+      - name: Sign reliable5 (HubSign)
+        run: |
+          UNSIGNED=$(ls shortcuts/*_unsigned.shortcut | head -n1)
+          python3 tools/sign_hubsign.py --input "$UNSIGNED" --output shortcuts/asa-jitaku-reliable5.shortcut --name AsaJitakuReliable5 --no-action-extension
+          test -s shortcuts/asa-jitaku-reliable5.shortcut
+          python3 -c "d=open('shortcuts/asa-jitaku-reliable5.shortcut','rb').read(); assert d[:4]==b'AEA1'"
+          rm -f shortcuts/*_unsigned.shortcut
+          cp shortcuts/asa-jitaku-reliable5.shortcut site/shortcuts/asa-jitaku-reliable5.shortcut
+          cd site/shortcuts && zip -q asa-jitaku-reliable5.zip asa-jitaku-reliable5.shortcut && cd -
+
       - name: Assemble site
         run: cp -r web/. site/
 
