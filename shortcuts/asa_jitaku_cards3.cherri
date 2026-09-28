@@ -1,0 +1,186 @@
+#include 'actions/calendar'
+#include 'actions/text'
+#include 'actions/math'
+
+#define name AsaJitakuCards3
+#define color pink
+#define glyph alarmClock
+#define version 26
+
+/* Cards3:
+   - Web / clipboard / share sheet / URL scheme は使わない
+   - Cards1型の見やすい複数行リスト
+   - アラーム処理はReliable5と同じ安全ロジック
+   - 既存Native4 / Reliable5は変更しない
+*/
+
+/* PATTERNS_START */
+@p1Name = "東二・出勤"
+@p1Time = "6:28"
+@p1Gap = 3
+@p1Count = 10
+@p1Base = 388
+@p2Name = "パシーナ・出勤"
+@p2Time = "5:55"
+@p2Gap = 3
+@p2Count = 10
+@p2Base = 355
+@p3Name = "日曜日"
+@p3Time = "9:00"
+@p3Gap = 5
+@p3Count = 10
+@p3Base = 540
+@p4Name = "休日"
+@p4Time = ""
+@p4Gap = 0
+@p4Count = 0
+@p4Base = 0
+@p5Name = "モーニング"
+@p5Time = "7:30"
+@p5Gap = 5
+@p5Count = 10
+@p5Base = 450
+@p6Name = "平日登校日"
+@p6Time = "6:30"
+@p6Gap = 4
+@p6Count = 10
+@p6Base = 390
+/* PATTERNS_END */
+
+@baseMin = 0
+@gap = 0
+@count = 0
+@offsetMin = 0
+@patName = ""
+@proceed = 0
+
+menu "朝じたく" {
+item "今夜のアラームをセット":
+    @proceed = 0
+
+    @p1Card = "{@p1Name}\n{@p1Time} ・ {@p1Gap}分おき ・ {@p1Count}回"
+    @p2Card = "{@p2Name}\n{@p2Time} ・ {@p2Gap}分おき ・ {@p2Count}回"
+    @p3Card = "{@p3Name}\n{@p3Time} ・ {@p3Gap}分おき ・ {@p3Count}回"
+    @p4Card = "{@p4Name}\nアラームなし"
+    @p5Card = "{@p5Name}\n{@p5Time} ・ {@p5Gap}分おき ・ {@p5Count}回"
+    @p6Card = "{@p6Name}\n{@p6Time} ・ {@p6Gap}分おき ・ {@p6Count}回"
+
+    @cardList = list(@p1Card, @p2Card, @p3Card, @p4Card, @p5Card, @p6Card)
+    @chosenV = chooseFromList(@cardList, "パターンを選んでください")
+    @chosen = getText(@chosenV)
+
+    if @chosen == @p1Card {
+        @baseMin = @p1Base
+        @gap = @p1Gap
+        @count = @p1Count
+        @patName = @p1Name
+        @proceed = 1
+    } else if @chosen == @p2Card {
+        @baseMin = @p2Base
+        @gap = @p2Gap
+        @count = @p2Count
+        @patName = @p2Name
+        @proceed = 1
+    } else if @chosen == @p3Card {
+        @baseMin = @p3Base
+        @gap = @p3Gap
+        @count = @p3Count
+        @patName = @p3Name
+        @proceed = 1
+    } else if @chosen == @p4Card {
+        @proceed = 0
+        alert("休日：アラームなしにしました。", "朝じたく")
+    } else if @chosen == @p5Card {
+        @baseMin = @p5Base
+        @gap = @p5Gap
+        @count = @p5Count
+        @patName = @p5Name
+        @proceed = 1
+    } else if @chosen == @p6Card {
+        @baseMin = @p6Base
+        @gap = @p6Gap
+        @count = @p6Count
+        @patName = @p6Name
+        @proceed = 1
+    }
+
+    if @proceed == 1 {
+        menu "今日だけ時刻をずらしますか？" {
+        item "そのまま":
+            @offsetMin = 0
+        item "+5分":
+            @offsetMin = 5
+        item "+10分":
+            @offsetMin = 10
+        item "+15分":
+            @offsetMin = 15
+        item "+30分":
+            @offsetMin = 30
+        item "-5分":
+            @offsetMin = -5
+        item "-10分":
+            @offsetMin = -10
+        item "-15分":
+            @offsetMin = -15
+        item "-30分":
+            @offsetMin = -30
+        }
+
+        @alarms = getAlarms()
+        for alarm in @alarms {
+            @rawName = getName(@alarm)
+            @alarmName = getText(@rawName)
+            if @alarmName beginsWith "朝じたく｜" {
+                turnOffAlarm(@alarm, false)
+            }
+        }
+
+        @totalBase = @baseMin + @offsetMin
+        @made = 0
+        repeat i for @count {
+            @iZero = @i - 1
+            @gapi = @gap * @iZero
+            @thisMin = @totalBase + @gapi
+            @hhRaw = @thisMin / 60
+            @hh = floor(@hhRaw)
+            @mmRaw = @hh * 60
+            @mm = @thisMin - @mmRaw
+            @hhPad = @hh
+            if @hh < 10 { @hhPad = "0{@hh}" }
+            @mmPad = @mm
+            if @mm < 10 { @mmPad = "0{@mm}" }
+            @timeText = "{@hhPad}:{@mmPad}"
+            @targetName = "朝じたく｜{@patName}｜{@timeText}"
+
+            @found = 0
+            for existing in @alarms {
+                @existingRawName = getName(@existing)
+                @existingName = getText(@existingRawName)
+                if @existingName == @targetName {
+                    turnOnAlarm(@existing, false)
+                    @found = 1
+                }
+            }
+
+            if @found == 0 {
+                createAlarm(@targetName, @timeText, false)
+            }
+            @made = @made + 1
+        }
+
+        alert("{@patName} を {@made}件 セットしました。", "朝じたく")
+    }
+
+item "起きました":
+    @alarms2 = getAlarms()
+    @stopped = 0
+    for alarm2 in @alarms2 {
+        @rawName2 = getName(@alarm2)
+        @alarmName2 = getText(@rawName2)
+        if @alarmName2 beginsWith "朝じたく｜" {
+            turnOffAlarm(@alarm2, false)
+            @stopped = @stopped + 1
+        }
+    }
+    alert("残りの朝じたくアラームを止めました。", "朝じたく")
+}
