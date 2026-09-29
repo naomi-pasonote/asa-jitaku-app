@@ -1,0 +1,154 @@
+#include 'actions/calendar'
+#include 'actions/text'
+#include 'actions/math'
+
+#define name AsaJitakuNativeCard
+#define color pink
+#define glyph alarmClock
+#define version 26
+
+/* Native4の処理ロジックをそのまま使用し、表示だけ見やすくした検証版。
+   PATTERNSブロックはビルド時にPATTERNS_CHERRIから注入される。 */
+
+@baseMin = 0
+@gap = 0
+@count = 0
+@offsetMin = 0
+@patName = ""
+
+menu "朝じたく" {
+item "今夜のアラームをセット":
+    menu "パターンを選んでください" {
+    /* PATTERNS_START */
+    item "パターンA\n7:00 ・ 5分おき ・ 10回":
+        @baseMin = 420
+        @gap = 5
+        @count = 10
+        @patName = "パターンA"
+    item "パターンB\n8:00 ・ 5分おき ・ 10回":
+        @baseMin = 480
+        @gap = 5
+        @count = 10
+        @patName = "パターンB"
+    item "パターンC\n9:00 ・ 5分おき ・ 10回":
+        @baseMin = 540
+        @gap = 5
+        @count = 10
+        @patName = "パターンC"
+    item "休日\nアラームなし":
+        @baseMin = 0
+        @gap = 0
+        @count = 0
+        @patName = "休日"
+    item "パターンD\n7:30 ・ 5分おき ・ 10回":
+        @baseMin = 450
+        @gap = 5
+        @count = 10
+        @patName = "パターンD"
+    item "パターンE\n6:30 ・ 5分おき ・ 10回":
+        @baseMin = 390
+        @gap = 5
+        @count = 10
+        @patName = "パターンE"
+    /* PATTERNS_END */
+    }
+    menu "今日だけ時刻をずらしますか？" {
+    item "そのまま":
+        @offsetMin = 0
+    item "+5分":
+        @offsetMin = 5
+    item "+10分":
+        @offsetMin = 10
+    item "+15分":
+        @offsetMin = 15
+    item "+30分":
+        @offsetMin = 30
+    item "-5分":
+        @offsetMin = -5
+    item "-10分":
+        @offsetMin = -10
+    item "-15分":
+        @offsetMin = -15
+    item "-30分":
+        @offsetMin = -30
+    }
+    @alarms = getAlarms()
+    for alarm in @alarms {
+        @rawName = getName(@alarm)
+        @alarmName = getText(@rawName)
+        if @alarmName beginsWith "朝じたく｜" {
+            deleteAlarm(@alarm)
+        }
+    }
+    if @count > 0 {
+        @totalBase = @baseMin + @offsetMin
+        @made = 0
+        repeat i for @count {
+            @gapi = @gap * @i
+            @thisMin = @totalBase + @gapi
+            @hhRaw = @thisMin / 60
+            @hh = floor(@hhRaw)
+            @mmRaw = @hh * 60
+            @mm = @thisMin - @mmRaw
+            @hhPad = @hh
+            if @hh < 10 {
+                @hhPad = "0{@hh}"
+            }
+            @mmPad = @mm
+            if @mm < 10 {
+                @mmPad = "0{@mm}"
+            }
+            @timeText = "{@hhPad}:{@mmPad}"
+            createAlarm("朝じたく｜{@patName}", @timeText, false)
+            @made = @made + 1
+        }
+        alert("{@patName} を {@made}件 セットしました。", "朝じたく")
+    } else {
+        alert("休日：アラームなしにしました。", "朝じたく")
+    }
+item "起きました":
+    @alarms2 = getAlarms()
+    @stopped = 0
+    for alarm in @alarms2 {
+        @rawName2 = getName(@alarm)
+        @alarmName2 = getText(@rawName2)
+        if @alarmName2 beginsWith "朝じたく｜" {
+            turnOffAlarm(@alarm, false)
+            @stopped = @stopped + 1
+        }
+    }
+    alert("残りの朝じたくアラームを止めました。", "朝じたく")
+item "テスト（2・4・6分後）":
+    @alarms3 = getAlarms()
+    for alarm in @alarms3 {
+        @rawName3 = getName(@alarm)
+        @alarmName3 = getText(@rawName3)
+        if @alarmName3 beginsWith "朝じたく｜" {
+            deleteAlarm(@alarm)
+        }
+    }
+    @now = currentDate()
+    @nowHtxt = formatDate(@now, "Custom", "HH")
+    @nowMtxt = formatDate(@now, "Custom", "mm")
+    @nowH = getNumbers(@nowHtxt)
+    @nowM = getNumbers(@nowMtxt)
+    @totalNow = (@nowH * 60) + @nowM
+    repeat k for 3 {
+        @kk = @k * 2
+        @tmin = @totalNow + @kk
+        @thhRaw = @tmin / 60
+        @thhUnwrapped = floor(@thhRaw)
+        @thh = @thhUnwrapped - 0
+        if @thhUnwrapped > 23 {
+            @thh = @thhUnwrapped - 24
+        }
+        @tmm = @tmin - (@thhUnwrapped * 60)
+        @thhPad = @thh
+        if @thh < 10 { @thhPad = "0{@thh}" }
+        @tmmPad = @tmm
+        if @tmm < 10 { @tmmPad = "0{@tmm}" }
+        @testTimeText = "{@thhPad}:{@tmmPad}"
+        createAlarm("朝じたく｜テスト", @testTimeText, false)
+    }
+    alert("2・4・6分後にテストアラームを3件セットしました。", "朝じたく")
+}
