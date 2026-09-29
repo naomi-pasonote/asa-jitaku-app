@@ -550,6 +550,61 @@ jobs:
           cp shortcuts/asa-jitaku-cards4.shortcut site/shortcuts/asa-jitaku-cards4.shortcut
           cd site/shortcuts && zip -q asa-jitaku-cards4.zip asa-jitaku-cards4.shortcut && cd -
 
+
+      - name: Inject patterns for native-card from existing private secret
+        env:
+          PATTERNS_CHERRI: ${{ secrets.PATTERNS_CHERRI }}
+        run: |
+          python3 - <<'PYEOF'
+          import os, re
+          src = "shortcuts/asa_jitaku_native_card.cherri"
+          patterns = os.environ.get("PATTERNS_CHERRI", "")
+          text = open(src, encoding="utf-8").read()
+          if patterns.strip():
+              blocks = re.findall(r'item\s+"([^"]+)":\s*(.*?)(?=\n\s*item\s+"|\Z)', patterns, flags=re.S)
+              out = []
+              for name, body in blocks:
+                  def num(field, default=0):
+                      m = re.search(r'@'+field+r'\s*=\s*(-?\d+)', body)
+                      return int(m.group(1)) if m else default
+                  base = num('baseMin'); gap = num('gap'); count = num('count')
+                  pm = re.search(r'@patName\s*=\s*"([^"]*)"', body)
+                  pat = pm.group(1) if pm else name
+                  if pat == "日曜レッスン":
+                      pat = "日曜日"
+                  if count == 0:
+                      label = f'{pat}\\nアラームなし'
+                  else:
+                      label = f'{pat}\\n{base//60}:{base%60:02d} ・ {gap}分おき ・ {count}回'
+                  out += [
+                      f'    item "{label}":',
+                      f'        @baseMin = {base}',
+                      f'        @gap = {gap}',
+                      f'        @count = {count}',
+                      f'        @patName = "{pat}"'
+                  ]
+              if len(blocks) != 6:
+                  raise SystemExit(f"expected 6 patterns, got {len(blocks)}")
+              repl = "/* PATTERNS_START */\n" + "\n".join(out) + "\n    /* PATTERNS_END */"
+              text = re.sub(r'/\* PATTERNS_START \*/.*?/\* PATTERNS_END \*/', repl, text, flags=re.S)
+          open(src, "w", encoding="utf-8").write(text)
+          PYEOF
+
+      - name: Compile native-card shortcut (unsigned)
+        run: |
+          ./cherri shortcuts/asa_jitaku_native_card.cherri --skip-sign
+          ls shortcuts/*_unsigned.shortcut
+
+      - name: Sign native-card (HubSign)
+        run: |
+          UNSIGNED=$(ls shortcuts/*_unsigned.shortcut | head -n1)
+          python3 tools/sign_hubsign.py --input "$UNSIGNED" --output shortcuts/asa-jitaku-native-card.shortcut --name AsaJitakuNativeCard
+          test -s shortcuts/asa-jitaku-native-card.shortcut
+          python3 -c "d=open('shortcuts/asa-jitaku-native-card.shortcut','rb').read(); assert d[:4]==b'AEA1'"
+          rm -f shortcuts/*_unsigned.shortcut
+          cp shortcuts/asa-jitaku-native-card.shortcut site/shortcuts/asa-jitaku-native-card.shortcut
+          cd site/shortcuts && zip -q asa-jitaku-native-card.zip asa-jitaku-native-card.shortcut && cd -
+
       - name: Assemble site
         run: cp -r web/. site/
 
