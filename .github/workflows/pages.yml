@@ -605,6 +605,22 @@ jobs:
           cp shortcuts/asa-jitaku-native-card.shortcut site/shortcuts/asa-jitaku-native-card.shortcut
           cd site/shortcuts && zip -q asa-jitaku-native-card.zip asa-jitaku-native-card.shortcut && cd -
 
+
+      - name: Compile native-card2 shortcut (unsigned)
+        run: |
+          ./cherri shortcuts/asa_jitaku_native_card2.cherri --skip-sign
+          ls shortcuts/*_unsigned.shortcut
+
+      - name: Sign native-card2 (HubSign)
+        run: |
+          UNSIGNED=$(ls shortcuts/*_unsigned.shortcut | head -n1)
+          python3 tools/sign_hubsign.py --input "$UNSIGNED" --output shortcuts/asa-jitaku-native-card2.shortcut --name AsaJitakuNativeCard2
+          test -s shortcuts/asa-jitaku-native-card2.shortcut
+          python3 -c "d=open('shortcuts/asa-jitaku-native-card2.shortcut','rb').read(); assert d[:4]==b'AEA1'"
+          rm -f shortcuts/*_unsigned.shortcut
+          cp shortcuts/asa-jitaku-native-card2.shortcut site/shortcuts/asa-jitaku-native-card2.shortcut
+          cd site/shortcuts && zip -q asa-jitaku-native-card2.zip asa-jitaku-native-card2.shortcut && cd -
+
       - name: Assemble site
         run: cp -r web/. site/
 
