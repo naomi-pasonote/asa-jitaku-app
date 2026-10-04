@@ -2,13 +2,19 @@
 #include 'actions/text'
 #include 'actions/math'
 
-#define name AsaJitakuNativeCard
+#define name AsaJitakuNative5
 #define color pink
 #define glyph alarmClock
 #define version 26
 
-/* Native4の処理ロジックをそのまま使用し、表示だけ見やすくした検証版。
-   PATTERNSブロックはビルド時にPATTERNS_CHERRIから注入される。 */
+/* このファイルはPublicリポジトリで公開される。
+   個人のパターン名・時刻は含まない。実際の値は、ビルド時に
+   GitHub Actionsのリポジトリ シークレット "PATTERNS_V5_CHERRI" の内容で
+   下の PATTERNS ブロックが自動的に置き換えられてから、コンパイル・署名される。
+   AsaJitakuNative4は変更していない(別ファイルとして新規作成)。
+   AsaJitakuNative4からの変更点:
+   ①「起きました」は停止(オフ)ではなく削除(delete)に変更
+   ②off-by-one修正(最初のアラームが1間隔分ずれていたバグ)を適用 */
 
 @baseMin = 0
 @gap = 0
@@ -20,34 +26,34 @@ menu "朝じたく" {
 item "今夜のアラームをセット":
     menu "パターンを選んでください" {
     /* PATTERNS_START */
-    item "パターンA\n7:00 ・ 5分おき ・ 10回":
+    item "パターンA":
         @baseMin = 420
         @gap = 5
         @count = 10
         @patName = "パターンA"
-    item "パターンB\n8:00 ・ 5分おき ・ 10回":
+    item "パターンB":
         @baseMin = 480
         @gap = 5
         @count = 10
         @patName = "パターンB"
-    item "パターンC\n9:00 ・ 5分おき ・ 10回":
+    item "パターンC":
         @baseMin = 540
         @gap = 5
         @count = 10
         @patName = "パターンC"
-    item "休日\nアラームなし":
+    item "休日":
         @baseMin = 0
         @gap = 0
         @count = 0
         @patName = "休日"
-    item "パターンD\n7:30 ・ 5分おき ・ 10回":
+    item "パターンD":
         @baseMin = 450
         @gap = 5
         @count = 10
         @patName = "パターンD"
-    item "パターンE\n6:30 ・ 5分おき ・ 10回":
+    item "パターンE":
         @baseMin = 390
-        @gap = 5
+        @gap = 4
         @count = 10
         @patName = "パターンE"
     /* PATTERNS_END */
@@ -84,7 +90,8 @@ item "今夜のアラームをセット":
         @totalBase = @baseMin + @offsetMin
         @made = 0
         repeat i for @count {
-            @gapi = @gap * @i
+            @iZero = @i - 1
+            @gapi = @gap * @iZero
             @thisMin = @totalBase + @gapi
             @hhRaw = @thisMin / 60
             @hh = floor(@hhRaw)
@@ -113,11 +120,11 @@ item "起きました":
         @rawName2 = getName(@alarm)
         @alarmName2 = getText(@rawName2)
         if @alarmName2 beginsWith "朝じたく｜" {
-            turnOffAlarm(@alarm, false)
+            deleteAlarm(@alarm)
             @stopped = @stopped + 1
         }
     }
-    alert("残りの朝じたくアラームを止めました。", "朝じたく")
+    alert("残りの朝じたくアラームを削除しました。", "朝じたく")
 item "テスト（2・4・6分後）":
     @alarms3 = getAlarms()
     for alarm in @alarms3 {

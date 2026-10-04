@@ -62,45 +62,21 @@ jobs:
           cp shortcuts/asa-jitaku-native.shortcut site/shortcuts/asa-jitaku-native.shortcut
           cd site/shortcuts && zip -q asa-jitaku-native.zip asa-jitaku-native.shortcut && cd -
 
-      - name: Inject patterns for cards variant from existing private secret
+      - name: Inject patterns for cards variant (private secret; falls back to public placeholder if unset)
         env:
-          PATTERNS_CHERRI: ${{ secrets.PATTERNS_CHERRI }}
+          PATTERNS_CARDS_CHERRI: ${{ secrets.PATTERNS_CARDS_CHERRI }}
         run: |
           python3 - <<'PYEOF'
           import os, re
           src = "shortcuts/asa_jitaku_cards.cherri"
-          patterns = os.environ.get("PATTERNS_CHERRI", "")
+          patterns = os.environ.get("PATTERNS_CARDS_CHERRI", "")
           text = open(src, encoding="utf-8").read()
           if patterns.strip():
-              blocks = re.findall(r'item\s+"([^"]+)":\s*(.*?)(?=\n\s*item\s+"|\Z)', patterns, flags=re.S)
-              rows = []
-              for name, body in blocks:
-                  def num(field, default=0):
-                      m = re.search(r'@'+field+r'\s*=\s*(-?\d+)', body)
-                      return int(m.group(1)) if m else default
-                  base = num('baseMin')
-                  gap = num('gap')
-                  count = num('count')
-                  pm = re.search(r'@patName\s*=\s*"([^"]*)"', body)
-                  pat = pm.group(1) if pm else name
-                  if pat == "日曜レッスン":
-                      pat = "日曜日"
-                  t = "" if count == 0 else f"{base//60}:{base%60:02d}"
-                  rows.append((pat,t,gap,count,base))
-              if len(rows) != 6:
-                  raise SystemExit(f"expected 6 patterns, got {len(rows)}")
-              out=[]
-              for i,(name,t,gap,count,base) in enumerate(rows,1):
-                  out += [
-                      f'    @p{i}Name = "{name}"',
-                      f'    @p{i}Time = "{t}"',
-                      f'    @p{i}Gap = {gap}',
-                      f'    @p{i}Count = {count}',
-                      f'    @p{i}Base = {base}',
-                  ]
-              repl = "/* PATTERNS_START */\n" + "\n".join(out) + "\n    /* PATTERNS_END */"
-              text = re.sub(r'/\* PATTERNS_START \*/.*?/\* PATTERNS_END \*/', repl, text, flags=re.S)
-              print("cards patterns: derived from PATTERNS_CHERRI")
+              text = re.sub(
+                  r"/\* PATTERNS_START \*/.*?/\* PATTERNS_END \*/",
+                  "/* PATTERNS_START */\n" + patterns + "    /* PATTERNS_END */",
+                  text, flags=re.S)
+              print("cards patterns: injected from secret")
           else:
               print("cards patterns: secret not set, using public placeholder")
           open(src, "w", encoding="utf-8").write(text)
@@ -121,45 +97,21 @@ jobs:
           cp shortcuts/asa-jitaku-cards.shortcut site/shortcuts/asa-jitaku-cards.shortcut
           cd site/shortcuts && zip -q asa-jitaku-cards.zip asa-jitaku-cards.shortcut && cd -
 
-      - name: Inject patterns for cards2 variant from existing private secret
+      - name: Inject patterns for cards2 variant (private secret; falls back to public placeholder if unset)
         env:
-          PATTERNS_CHERRI: ${{ secrets.PATTERNS_CHERRI }}
+          PATTERNS_CARDS2_CHERRI: ${{ secrets.PATTERNS_CARDS2_CHERRI }}
         run: |
           python3 - <<'PYEOF'
           import os, re
           src = "shortcuts/asa_jitaku_cards2.cherri"
-          patterns = os.environ.get("PATTERNS_CHERRI", "")
+          patterns = os.environ.get("PATTERNS_CARDS2_CHERRI", "")
           text = open(src, encoding="utf-8").read()
           if patterns.strip():
-              blocks = re.findall(r'item\s+"([^"]+)":\s*(.*?)(?=\n\s*item\s+"|\Z)', patterns, flags=re.S)
-              rows = []
-              for name, body in blocks:
-                  def num(field, default=0):
-                      m = re.search(r'@'+field+r'\s*=\s*(-?\d+)', body)
-                      return int(m.group(1)) if m else default
-                  base = num('baseMin')
-                  gap = num('gap')
-                  count = num('count')
-                  pm = re.search(r'@patName\s*=\s*"([^"]*)"', body)
-                  pat = pm.group(1) if pm else name
-                  if pat == "日曜レッスン":
-                      pat = "日曜日"
-                  t = "" if count == 0 else f"{base//60}:{base%60:02d}"
-                  rows.append((pat,t,gap,count,base))
-              if len(rows) != 6:
-                  raise SystemExit(f"expected 6 patterns, got {len(rows)}")
-              out=[]
-              for i,(name,t,gap,count,base) in enumerate(rows,1):
-                  out += [
-                      f'@p{i}Name = "{name}"',
-                      f'@p{i}Time = "{t}"',
-                      f'@p{i}Gap = {gap}',
-                      f'@p{i}Count = {count}',
-                      f'@p{i}Base = {base}',
-                  ]
-              repl = "/* PATTERNS_START */\n" + "\n".join(out) + "\n/* PATTERNS_END */"
-              text = re.sub(r'/\* PATTERNS_START \*/.*?/\* PATTERNS_END \*/', repl, text, flags=re.S)
-              print("cards2 patterns: derived from PATTERNS_CHERRI")
+              text = re.sub(
+                  r"/\* PATTERNS_START \*/.*?/\* PATTERNS_END \*/",
+                  "/* PATTERNS_START */\n" + patterns + "/* PATTERNS_END */",
+                  text, flags=re.S)
+              print("cards2 patterns: injected from secret")
           else:
               print("cards2 patterns: secret not set, using public placeholder")
           open(src, "w", encoding="utf-8").write(text)
@@ -195,300 +147,23 @@ jobs:
           cp shortcuts/asa-jitaku-cards2-debug.shortcut site/shortcuts/asa-jitaku-cards2-debug.shortcut
           cd site/shortcuts && zip -q asa-jitaku-cards2-debug.zip asa-jitaku-cards2-debug.shortcut && cd -
 
-      - name: Inject patterns for reliable variant from existing private secret
+      - name: Inject patterns for cards3 variant (private secret; falls back to public placeholder if unset)
         env:
-          PATTERNS_CHERRI: ${{ secrets.PATTERNS_CHERRI }}
-        run: |
-          python3 - <<'PYEOF'
-          import os, re
-          src = "shortcuts/asa_jitaku_reliable1.cherri"
-          patterns = os.environ.get("PATTERNS_CHERRI", "")
-          text = open(src, encoding="utf-8").read()
-          if patterns.strip():
-              blocks = re.findall(r'item\s+"([^"]+)":\s*(.*?)(?=\n\s*item\s+"|\Z)', patterns, flags=re.S)
-              rows = []
-              for name, body in blocks:
-                  def num(field, default=0):
-                      m = re.search(r'@'+field+r'\s*=\s*(-?\d+)', body)
-                      return int(m.group(1)) if m else default
-                  base = num('baseMin')
-                  gap = num('gap')
-                  count = num('count')
-                  pm = re.search(r'@patName\s*=\s*"([^"]*)"', body)
-                  pat = pm.group(1) if pm else name
-                  if pat == "日曜レッスン":
-                      pat = "日曜日"
-                  t = "" if count == 0 else f"{base//60}:{base%60:02d}"
-                  rows.append((pat,t,gap,count,base))
-              if len(rows) != 6:
-                  raise SystemExit(f"expected 6 patterns, got {len(rows)}")
-              out=[]
-              for i,(name,t,gap,count,base) in enumerate(rows,1):
-                  out += [
-                      f'    @p{i}Name = "{name}"',
-                      f'    @p{i}Time = "{t}"',
-                      f'    @p{i}Gap = {gap}',
-                      f'    @p{i}Count = {count}',
-                      f'    @p{i}Base = {base}',
-                  ]
-              repl = "/* PATTERNS_START */\n" + "\n".join(out) + "\n    /* PATTERNS_END */"
-              text = re.sub(r'/\* PATTERNS_START \*/.*?/\* PATTERNS_END \*/', repl, text, flags=re.S)
-              print("reliable patterns: derived from PATTERNS_CHERRI")
-          else:
-              print("reliable patterns: secret not set, using public placeholder")
-          open(src, "w", encoding="utf-8").write(text)
-          PYEOF
-
-      - name: Compile reliable shortcut (unsigned)
-        run: |
-          ./cherri shortcuts/asa_jitaku_reliable1.cherri --skip-sign
-          ls shortcuts/*_unsigned.shortcut
-
-      - name: Fix missing WFWorkflowName and sign reliable (HubSign)
-        run: |
-          UNSIGNED=$(ls shortcuts/*_unsigned.shortcut | head -n1)
-          python3 tools/sign_hubsign.py --input "$UNSIGNED" --output shortcuts/asa-jitaku-reliable1.shortcut --name AsaJitakuReliable1 --no-action-extension
-          test -s shortcuts/asa-jitaku-reliable1.shortcut
-          python3 -c "d=open('shortcuts/asa-jitaku-reliable1.shortcut','rb').read(); assert d[:4]==b'AEA1', 'not a signed shortcut file'"
-          rm -f shortcuts/*_unsigned.shortcut
-          cp shortcuts/asa-jitaku-reliable1.shortcut site/shortcuts/asa-jitaku-reliable1.shortcut
-          cd site/shortcuts && zip -q asa-jitaku-reliable1.zip asa-jitaku-reliable1.shortcut && cd -
-
-      - name: Inject patterns for reliable2 variant from existing private secret
-        env:
-          PATTERNS_CHERRI: ${{ secrets.PATTERNS_CHERRI }}
-        run: |
-          python3 - <<'PYEOF'
-          import os, re
-          src = "shortcuts/asa_jitaku_reliable2.cherri"
-          patterns = os.environ.get("PATTERNS_CHERRI", "")
-          text = open(src, encoding="utf-8").read()
-          if patterns.strip():
-              blocks = re.findall(r'item\s+"([^"]+)":\s*(.*?)(?=\n\s*item\s+"|\Z)', patterns, flags=re.S)
-              rows = []
-              for name, body in blocks:
-                  def num(field, default=0):
-                      m = re.search(r'@'+field+r'\s*=\s*(-?\d+)', body)
-                      return int(m.group(1)) if m else default
-                  base = num('baseMin')
-                  gap = num('gap')
-                  count = num('count')
-                  pm = re.search(r'@patName\s*=\s*"([^"]*)"', body)
-                  pat = pm.group(1) if pm else name
-                  if pat == "日曜レッスン":
-                      pat = "日曜日"
-                  t = "" if count == 0 else f"{base//60}:{base%60:02d}"
-                  rows.append((pat,t,gap,count,base))
-              if len(rows) != 6:
-                  raise SystemExit(f"expected 6 patterns, got {len(rows)}")
-              out=[]
-              for i,(name,t,gap,count,base) in enumerate(rows,1):
-                  out += [
-                      f'    @p{i}Name = "{name}"',
-                      f'    @p{i}Time = "{t}"',
-                      f'    @p{i}Gap = {gap}',
-                      f'    @p{i}Count = {count}',
-                      f'    @p{i}Base = {base}',
-                  ]
-              repl = "/* PATTERNS_START */\n" + "\n".join(out) + "\n    /* PATTERNS_END */"
-              text = re.sub(r'/\* PATTERNS_START \*/.*?/\* PATTERNS_END \*/', repl, text, flags=re.S)
-              print("reliable2 patterns: derived from PATTERNS_CHERRI")
-          else:
-              print("reliable2 patterns: secret not set, using public placeholder")
-          open(src, "w", encoding="utf-8").write(text)
-          PYEOF
-
-      - name: Compile reliable2 shortcut (unsigned)
-        run: |
-          ./cherri shortcuts/asa_jitaku_reliable2.cherri --skip-sign
-          ls shortcuts/*_unsigned.shortcut
-
-      - name: Fix missing WFWorkflowName and sign reliable2 (HubSign)
-        run: |
-          UNSIGNED=$(ls shortcuts/*_unsigned.shortcut | head -n1)
-          python3 tools/sign_hubsign.py --input "$UNSIGNED" --output shortcuts/asa-jitaku-reliable2.shortcut --name AsaJitakuReliable2 --no-action-extension
-          test -s shortcuts/asa-jitaku-reliable2.shortcut
-          python3 -c "d=open('shortcuts/asa-jitaku-reliable2.shortcut','rb').read(); assert d[:4]==b'AEA1', 'not a signed shortcut file'"
-          rm -f shortcuts/*_unsigned.shortcut
-          cp shortcuts/asa-jitaku-reliable2.shortcut site/shortcuts/asa-jitaku-reliable2.shortcut
-          cd site/shortcuts && zip -q asa-jitaku-reliable2.zip asa-jitaku-reliable2.shortcut && cd -
-
-      - name: Inject patterns for reliable3 variant from existing private secret
-        env:
-          PATTERNS_CHERRI: ${{ secrets.PATTERNS_CHERRI }}
-        run: |
-          python3 - <<'PYEOF'
-          import os, re
-          src = "shortcuts/asa_jitaku_reliable3.cherri"
-          patterns = os.environ.get("PATTERNS_CHERRI", "")
-          text = open(src, encoding="utf-8").read()
-          if patterns.strip():
-              blocks = re.findall(r'item\s+"([^"]+)":\s*(.*?)(?=\n\s*item\s+"|\Z)', patterns, flags=re.S)
-              rows = []
-              for name, body in blocks:
-                  def num(field, default=0):
-                      m = re.search(r'@'+field+r'\s*=\s*(-?\d+)', body)
-                      return int(m.group(1)) if m else default
-                  base = num('baseMin'); gap = num('gap'); count = num('count')
-                  pm = re.search(r'@patName\s*=\s*"([^"]*)"', body)
-                  pat = pm.group(1) if pm else name
-                  if pat == "日曜レッスン": pat = "日曜日"
-                  t = "" if count == 0 else f"{base//60}:{base%60:02d}"
-                  rows.append((pat,t,gap,count,base))
-              if len(rows) != 6: raise SystemExit(f"expected 6 patterns, got {len(rows)}")
-              out=[]
-              for i,(name,t,gap,count,base) in enumerate(rows,1):
-                  out += [f'    @p{i}Name = "{name}"',f'    @p{i}Time = "{t}"',f'    @p{i}Gap = {gap}',f'    @p{i}Count = {count}',f'    @p{i}Base = {base}']
-              repl = "/* PATTERNS_START */\n" + "\n".join(out) + "\n    /* PATTERNS_END */"
-              text = re.sub(r'/\* PATTERNS_START \*/.*?/\* PATTERNS_END \*/', repl, text, flags=re.S)
-              print("reliable3 patterns: derived from PATTERNS_CHERRI")
-          open(src, "w", encoding="utf-8").write(text)
-          PYEOF
-
-      - name: Compile reliable3 shortcut (unsigned)
-        run: |
-          ./cherri shortcuts/asa_jitaku_reliable3.cherri --skip-sign
-          ls shortcuts/*_unsigned.shortcut
-
-      - name: Sign reliable3 (HubSign)
-        run: |
-          UNSIGNED=$(ls shortcuts/*_unsigned.shortcut | head -n1)
-          python3 tools/sign_hubsign.py --input "$UNSIGNED" --output shortcuts/asa-jitaku-reliable3.shortcut --name AsaJitakuReliable3 --no-action-extension
-          test -s shortcuts/asa-jitaku-reliable3.shortcut
-          python3 -c "d=open('shortcuts/asa-jitaku-reliable3.shortcut','rb').read(); assert d[:4]==b'AEA1'"
-          rm -f shortcuts/*_unsigned.shortcut
-          cp shortcuts/asa-jitaku-reliable3.shortcut site/shortcuts/asa-jitaku-reliable3.shortcut
-          cd site/shortcuts && zip -q asa-jitaku-reliable3.zip asa-jitaku-reliable3.shortcut && cd -
-
-      - name: Inject patterns for reliable4 variant from existing private secret
-        env:
-          PATTERNS_CHERRI: ${{ secrets.PATTERNS_CHERRI }}
-        run: |
-          python3 - <<'PYEOF'
-          import os, re
-          src = "shortcuts/asa_jitaku_reliable4.cherri"
-          patterns = os.environ.get("PATTERNS_CHERRI", "")
-          text = open(src, encoding="utf-8").read()
-          if patterns.strip():
-              blocks = re.findall(r'item\s+"([^"]+)":\s*(.*?)(?=\n\s*item\s+"|\Z)', patterns, flags=re.S)
-              rows=[]
-              for name, body in blocks:
-                  def num(field, default=0):
-                      m=re.search(r'@'+field+r'\s*=\s*(-?\d+)', body)
-                      return int(m.group(1)) if m else default
-                  base=num('baseMin'); gap=num('gap'); count=num('count')
-                  pm=re.search(r'@patName\s*=\s*"([^"]*)"', body)
-                  pat=pm.group(1) if pm else name
-                  if pat=="日曜レッスン": pat="日曜日"
-                  t="" if count==0 else f"{base//60}:{base%60:02d}"
-                  rows.append((pat,t,gap,count,base))
-              if len(rows)!=6: raise SystemExit(f"expected 6 patterns, got {len(rows)}")
-              out=[]
-              for i,(name,t,gap,count,base) in enumerate(rows,1):
-                  out += [f'@p{i}Name = "{name}"',f'@p{i}Time = "{t}"',f'@p{i}Gap = {gap}',f'@p{i}Count = {count}',f'@p{i}Base = {base}']
-              repl="/* PATTERNS_START */\n"+"\n".join(out)+"\n/* PATTERNS_END */"
-              text=re.sub(r'/\* PATTERNS_START \*/.*?/\* PATTERNS_END \*/', repl, text, flags=re.S)
-          open(src,"w",encoding="utf-8").write(text)
-          PYEOF
-
-      - name: Compile reliable4 shortcut (unsigned)
-        run: |
-          ./cherri shortcuts/asa_jitaku_reliable4.cherri --skip-sign
-          ls shortcuts/*_unsigned.shortcut
-
-      - name: Sign reliable4 (HubSign)
-        run: |
-          UNSIGNED=$(ls shortcuts/*_unsigned.shortcut | head -n1)
-          python3 tools/sign_hubsign.py --input "$UNSIGNED" --output shortcuts/asa-jitaku-reliable4.shortcut --name AsaJitakuReliable4 --no-action-extension
-          test -s shortcuts/asa-jitaku-reliable4.shortcut
-          python3 -c "d=open('shortcuts/asa-jitaku-reliable4.shortcut','rb').read(); assert d[:4]==b'AEA1'"
-          rm -f shortcuts/*_unsigned.shortcut
-          cp shortcuts/asa-jitaku-reliable4.shortcut site/shortcuts/asa-jitaku-reliable4.shortcut
-          cd site/shortcuts && zip -q asa-jitaku-reliable4.zip asa-jitaku-reliable4.shortcut && cd -
-
-      - name: Inject values for reliable5 from existing private secret
-        env:
-          PATTERNS_CHERRI: ${{ secrets.PATTERNS_CHERRI }}
-        run: |
-          python3 - <<'PYEOF'
-          import os, re
-          src = "shortcuts/asa_jitaku_reliable5.cherri"
-          patterns = os.environ.get("PATTERNS_CHERRI", "")
-          text = open(src, encoding="utf-8").read()
-          if patterns.strip():
-              blocks = re.findall(r'item\s+"([^"]+)":\s*(.*?)(?=\n\s*item\s+"|\Z)', patterns, flags=re.S)
-              rows = []
-              for name, body in blocks:
-                  def num(field, default=0):
-                      m = re.search(r'@'+field+r'\s*=\s*(-?\d+)', body)
-                      return int(m.group(1)) if m else default
-                  rows.append((num('baseMin'), num('gap'), num('count')))
-              if len(rows) != 6:
-                  raise SystemExit(f"expected 6 patterns, got {len(rows)}")
-              out=[]
-              for i,(base,gap,count) in enumerate(rows,1):
-                  out += [f'@p{i}Base = {base}', f'@p{i}Gap = {gap}', f'@p{i}Count = {count}']
-              repl = "/* PATTERNS_START */\n" + "\n".join(out) + "\n/* PATTERNS_END */"
-              text = re.sub(r'/\* PATTERNS_START \*/.*?/\* PATTERNS_END \*/', repl, text, flags=re.S)
-              print("reliable5 values: derived from PATTERNS_CHERRI")
-          open(src, "w", encoding="utf-8").write(text)
-          PYEOF
-
-      - name: Compile reliable5 shortcut (unsigned)
-        run: |
-          ./cherri shortcuts/asa_jitaku_reliable5.cherri --skip-sign
-          ls shortcuts/*_unsigned.shortcut
-
-      - name: Sign reliable5 (HubSign)
-        run: |
-          UNSIGNED=$(ls shortcuts/*_unsigned.shortcut | head -n1)
-          python3 tools/sign_hubsign.py --input "$UNSIGNED" --output shortcuts/asa-jitaku-reliable5.shortcut --name AsaJitakuReliable5 --no-action-extension
-          test -s shortcuts/asa-jitaku-reliable5.shortcut
-          python3 -c "d=open('shortcuts/asa-jitaku-reliable5.shortcut','rb').read(); assert d[:4]==b'AEA1'"
-          rm -f shortcuts/*_unsigned.shortcut
-          cp shortcuts/asa-jitaku-reliable5.shortcut site/shortcuts/asa-jitaku-reliable5.shortcut
-          cd site/shortcuts && zip -q asa-jitaku-reliable5.zip asa-jitaku-reliable5.shortcut && cd -
-
-
-      - name: Inject patterns for cards3 from existing private secret
-        env:
-          PATTERNS_CHERRI: ${{ secrets.PATTERNS_CHERRI }}
+          PATTERNS_CARDS3_CHERRI: ${{ secrets.PATTERNS_CARDS3_CHERRI }}
         run: |
           python3 - <<'PYEOF'
           import os, re
           src = "shortcuts/asa_jitaku_cards3.cherri"
-          patterns = os.environ.get("PATTERNS_CHERRI", "")
+          patterns = os.environ.get("PATTERNS_CARDS3_CHERRI", "")
           text = open(src, encoding="utf-8").read()
           if patterns.strip():
-              blocks = re.findall(r'item\s+"([^"]+)":\s*(.*?)(?=\n\s*item\s+"|\Z)', patterns, flags=re.S)
-              rows = []
-              for name, body in blocks:
-                  def num(field, default=0):
-                      m = re.search(r'@'+field+r'\s*=\s*(-?\d+)', body)
-                      return int(m.group(1)) if m else default
-                  base = num('baseMin')
-                  gap = num('gap')
-                  count = num('count')
-                  pm = re.search(r'@patName\s*=\s*"([^"]*)"', body)
-                  pat = pm.group(1) if pm else name
-                  if pat == "日曜レッスン":
-                      pat = "日曜日"
-                  t = "" if count == 0 else f"{base//60}:{base%60:02d}"
-                  rows.append((pat,t,gap,count,base))
-              if len(rows) != 6:
-                  raise SystemExit(f"expected 6 patterns, got {len(rows)}")
-              out=[]
-              for i,(name,t,gap,count,base) in enumerate(rows,1):
-                  out += [
-                      f'@p{i}Name = "{name}"',
-                      f'@p{i}Time = "{t}"',
-                      f'@p{i}Gap = {gap}',
-                      f'@p{i}Count = {count}',
-                      f'@p{i}Base = {base}',
-                  ]
-              repl = "/* PATTERNS_START */\n" + "\n".join(out) + "\n/* PATTERNS_END */"
-              text = re.sub(r'/\* PATTERNS_START \*/.*?/\* PATTERNS_END \*/', repl, text, flags=re.S)
-              print("cards3 patterns: derived from PATTERNS_CHERRI")
+              text = re.sub(
+                  r"/\* PATTERNS_START \*/.*?/\* PATTERNS_END \*/",
+                  "/* PATTERNS_START */\n" + patterns + "/* PATTERNS_END */",
+                  text, flags=re.S)
+              print("cards3 patterns: injected from secret")
+          else:
+              print("cards3 patterns: secret not set, using public placeholder")
           open(src, "w", encoding="utf-8").write(text)
           PYEOF
 
@@ -497,132 +172,59 @@ jobs:
           ./cherri shortcuts/asa_jitaku_cards3.cherri --skip-sign
           ls shortcuts/*_unsigned.shortcut
 
-      - name: Sign cards3 (HubSign)
+      - name: Fix missing WFWorkflowName and sign cards3 variant (HubSign)
         run: |
           UNSIGNED=$(ls shortcuts/*_unsigned.shortcut | head -n1)
-          python3 tools/sign_hubsign.py --input "$UNSIGNED" --output shortcuts/asa-jitaku-cards3.shortcut --name AsaJitakuCards3 --no-action-extension
+          python3 tools/sign_hubsign.py --input "$UNSIGNED" --output shortcuts/asa-jitaku-cards3.shortcut --name AsaJitakuCards3
           test -s shortcuts/asa-jitaku-cards3.shortcut
-          python3 -c "d=open('shortcuts/asa-jitaku-cards3.shortcut','rb').read(); assert d[:4]==b'AEA1'"
+          python3 -c "d=open('shortcuts/asa-jitaku-cards3.shortcut','rb').read(); assert d[:4]==b'AEA1', 'not a signed shortcut file'"
           rm -f shortcuts/*_unsigned.shortcut
           cp shortcuts/asa-jitaku-cards3.shortcut site/shortcuts/asa-jitaku-cards3.shortcut
           cd site/shortcuts && zip -q asa-jitaku-cards3.zip asa-jitaku-cards3.shortcut && cd -
 
-
-      - name: Inject values for cards4 from existing private secret
+      - name: Inject patterns for native5 variant (private secret; falls back to public placeholder if unset)
         env:
-          PATTERNS_CHERRI: ${{ secrets.PATTERNS_CHERRI }}
+          PATTERNS_V5_CHERRI: ${{ secrets.PATTERNS_V5_CHERRI }}
         run: |
           python3 - <<'PYEOF'
           import os, re
-          src = "shortcuts/asa_jitaku_cards4.cherri"
-          patterns = os.environ.get("PATTERNS_CHERRI", "")
+          src = "shortcuts/asa_jitaku_native5.cherri"
+          patterns = os.environ.get("PATTERNS_V5_CHERRI", "")
           text = open(src, encoding="utf-8").read()
           if patterns.strip():
-              blocks = re.findall(r'item\s+"([^"]+)":\s*(.*?)(?=\n\s*item\s+"|\Z)', patterns, flags=re.S)
-              rows=[]
-              for name, body in blocks:
-                  def num(field, default=0):
-                      m=re.search(r'@'+field+r'\s*=\s*(-?\d+)', body)
-                      return int(m.group(1)) if m else default
-                  rows.append((num('baseMin'), num('gap'), num('count')))
-              if len(rows)!=6:
-                  raise SystemExit(f"expected 6 patterns, got {len(rows)}")
-              out=[]
-              for i,(base,gap,count) in enumerate(rows,1):
-                  out += [f'@p{i}Base = {base}', f'@p{i}Gap = {gap}', f'@p{i}Count = {count}']
-              repl="/* PATTERNS_START */\n"+"\n".join(out)+"\n/* PATTERNS_END */"
-              text=re.sub(r'/\* PATTERNS_START \*/.*?/\* PATTERNS_END \*/', repl, text, flags=re.S)
-          open(src,"w",encoding="utf-8").write(text)
-          PYEOF
-
-      - name: Compile cards4 shortcut (unsigned)
-        run: |
-          ./cherri shortcuts/asa_jitaku_cards4.cherri --skip-sign
-          ls shortcuts/*_unsigned.shortcut
-
-      - name: Sign cards4 (HubSign)
-        run: |
-          UNSIGNED=$(ls shortcuts/*_unsigned.shortcut | head -n1)
-          python3 tools/sign_hubsign.py --input "$UNSIGNED" --output shortcuts/asa-jitaku-cards4.shortcut --name AsaJitakuCards4 --no-action-extension
-          test -s shortcuts/asa-jitaku-cards4.shortcut
-          python3 -c "d=open('shortcuts/asa-jitaku-cards4.shortcut','rb').read(); assert d[:4]==b'AEA1'"
-          rm -f shortcuts/*_unsigned.shortcut
-          cp shortcuts/asa-jitaku-cards4.shortcut site/shortcuts/asa-jitaku-cards4.shortcut
-          cd site/shortcuts && zip -q asa-jitaku-cards4.zip asa-jitaku-cards4.shortcut && cd -
-
-
-      - name: Inject patterns for native-card from existing private secret
-        env:
-          PATTERNS_CHERRI: ${{ secrets.PATTERNS_CHERRI }}
-        run: |
-          python3 - <<'PYEOF'
-          import os, re
-          src = "shortcuts/asa_jitaku_native_card.cherri"
-          patterns = os.environ.get("PATTERNS_CHERRI", "")
-          text = open(src, encoding="utf-8").read()
-          if patterns.strip():
-              blocks = re.findall(r'item\s+"([^"]+)":\s*(.*?)(?=\n\s*item\s+"|\Z)', patterns, flags=re.S)
-              out = []
-              for name, body in blocks:
-                  def num(field, default=0):
-                      m = re.search(r'@'+field+r'\s*=\s*(-?\d+)', body)
-                      return int(m.group(1)) if m else default
-                  base = num('baseMin'); gap = num('gap'); count = num('count')
-                  pm = re.search(r'@patName\s*=\s*"([^"]*)"', body)
-                  pat = pm.group(1) if pm else name
-                  if pat == "日曜レッスン":
-                      pat = "日曜日"
-                  if count == 0:
-                      label = f'{pat}\\nアラームなし'
-                  else:
-                      label = f'{pat}\\n{base//60}:{base%60:02d} ・ {gap}分おき ・ {count}回'
-                  out += [
-                      f'    item "{label}":',
-                      f'        @baseMin = {base}',
-                      f'        @gap = {gap}',
-                      f'        @count = {count}',
-                      f'        @patName = "{pat}"'
-                  ]
-              if len(blocks) != 6:
-                  raise SystemExit(f"expected 6 patterns, got {len(blocks)}")
-              repl = "/* PATTERNS_START */\n" + "\n".join(out) + "\n    /* PATTERNS_END */"
-              text = re.sub(r'/\* PATTERNS_START \*/.*?/\* PATTERNS_END \*/', repl, text, flags=re.S)
+              text = re.sub(
+                  r"/\* PATTERNS_START \*/.*?/\* PATTERNS_END \*/",
+                  "/* PATTERNS_START */\n" + patterns + "    /* PATTERNS_END */",
+                  text, flags=re.S)
+              print("native5 patterns: injected from secret")
+          else:
+              print("native5 patterns: secret not set, using public placeholder")
           open(src, "w", encoding="utf-8").write(text)
           PYEOF
 
-      - name: Compile native-card shortcut (unsigned)
+      - name: Compile native5 shortcut (unsigned)
         run: |
-          ./cherri shortcuts/asa_jitaku_native_card.cherri --skip-sign
+          ./cherri shortcuts/asa_jitaku_native5.cherri --skip-sign
           ls shortcuts/*_unsigned.shortcut
 
-      - name: Sign native-card (HubSign)
+      - name: Fix missing WFWorkflowName and sign native5 variant (HubSign)
         run: |
           UNSIGNED=$(ls shortcuts/*_unsigned.shortcut | head -n1)
-          python3 tools/sign_hubsign.py --input "$UNSIGNED" --output shortcuts/asa-jitaku-native-card.shortcut --name AsaJitakuNativeCard
-          test -s shortcuts/asa-jitaku-native-card.shortcut
-          python3 -c "d=open('shortcuts/asa-jitaku-native-card.shortcut','rb').read(); assert d[:4]==b'AEA1'"
+          python3 tools/sign_hubsign.py --input "$UNSIGNED" --output shortcuts/asa-jitaku-native5.shortcut --name AsaJitakuNative5
+          test -s shortcuts/asa-jitaku-native5.shortcut
+          python3 -c "d=open('shortcuts/asa-jitaku-native5.shortcut','rb').read(); assert d[:4]==b'AEA1', 'not a signed shortcut file'"
           rm -f shortcuts/*_unsigned.shortcut
-          cp shortcuts/asa-jitaku-native-card.shortcut site/shortcuts/asa-jitaku-native-card.shortcut
-          cd site/shortcuts && zip -q asa-jitaku-native-card.zip asa-jitaku-native-card.shortcut && cd -
-
-
-      - name: Compile native-card2 shortcut (unsigned)
-        run: |
-          ./cherri shortcuts/asa_jitaku_native_card2.cherri --skip-sign
-          ls shortcuts/*_unsigned.shortcut
-
-      - name: Sign native-card2 (HubSign)
-        run: |
-          UNSIGNED=$(ls shortcuts/*_unsigned.shortcut | head -n1)
-          python3 tools/sign_hubsign.py --input "$UNSIGNED" --output shortcuts/asa-jitaku-native-card2.shortcut --name AsaJitakuNativeCard2
-          test -s shortcuts/asa-jitaku-native-card2.shortcut
-          python3 -c "d=open('shortcuts/asa-jitaku-native-card2.shortcut','rb').read(); assert d[:4]==b'AEA1'"
-          rm -f shortcuts/*_unsigned.shortcut
-          cp shortcuts/asa-jitaku-native-card2.shortcut site/shortcuts/asa-jitaku-native-card2.shortcut
-          cd site/shortcuts && zip -q asa-jitaku-native-card2.zip asa-jitaku-native-card2.shortcut && cd -
+          cp shortcuts/asa-jitaku-native5.shortcut site/shortcuts/asa-jitaku-native5.shortcut
+          cd site/shortcuts && zip -q asa-jitaku-native5.zip asa-jitaku-native5.shortcut && cd -
 
       - name: Assemble site
-        run: cp -r web/. site/
+        run: |
+          if [ -d web ]; then
+            cp -r web/. site/
+            echo "web/ found and copied (design managed outside this pipeline)."
+          else
+            echo "no web/ directory in this repo yet — skipping (Pages will only serve site/shortcuts/ until a web/ is added separately)."
+          fi
 
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3

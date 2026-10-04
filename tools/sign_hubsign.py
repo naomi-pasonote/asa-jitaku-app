@@ -15,17 +15,14 @@ def main() -> int:
     ap.add_argument("--input", type=Path, required=True)
     ap.add_argument("--output", type=Path, required=True)
     ap.add_argument("--name", required=True)
-    ap.add_argument("--no-action-extension", action="store_true")
     a = ap.parse_args()
 
     wf = plistlib.loads(a.input.read_bytes())
     wf["WFWorkflowName"] = a.name  # 根本原因の修正1: 正式な登録名を明示的に設定
-    existing_types = list(wf.get("WFWorkflowTypes") or [])
-    if a.no_action_extension:
-        existing_types = [x for x in existing_types if x != "ActionExtension"]
-    elif "ActionExtension" not in existing_types:
-        existing_types.append("ActionExtension")
-    wf["WFWorkflowTypes"] = existing_types
+    existing_types = wf.get("WFWorkflowTypes") or []
+    if "ActionExtension" not in existing_types:
+        existing_types = list(existing_types) + ["ActionExtension"]
+    wf["WFWorkflowTypes"] = existing_types  # 修正2: 共有シートに出すためのフラグ
     xml = plistlib.dumps(wf, fmt=plistlib.FMT_XML, sort_keys=False).decode("utf-8")
 
     body = json.dumps({"shortcutName": a.name, "shortcut": xml}, ensure_ascii=False).encode("utf-8")

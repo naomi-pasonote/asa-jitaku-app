@@ -7,24 +7,24 @@
 #define glyph alarmClock
 #define version 26
 
-/* Cards3:
-   - Web / clipboard / share sheet / URL scheme は使わない
-   - Cards1型の見やすい複数行リスト
-   - アラーム処理はReliable5と同じ安全ロジック
-   - 既存Native4 / Reliable5は変更しない
-*/
+/* このファイルはPublicリポジトリで公開される。個人のパターン名・時刻は含まない。
+   実際の値は、ビルド時にリポジトリ シークレットの内容で下の PATTERNS ブロックが
+   自動的に置き換えられてからコンパイル・署名される。
+   AsaJitakuNative4 は変更していない。Web/clipboard/share sheet/URLスキームは
+   一切使わず、ショートカット単体(ホーム画面アイコン起動)で完結する。
+   パターン選択はCards1と同じ、複数行表示のchooseFromListを使用。 */
 
 /* PATTERNS_START */
-@p1Name = "東二・出勤"
-@p1Time = "6:28"
-@p1Gap = 3
+@p1Name = "パターンA"
+@p1Time = "7:00"
+@p1Gap = 5
 @p1Count = 10
-@p1Base = 388
-@p2Name = "パシーナ・出勤"
-@p2Time = "5:55"
-@p2Gap = 3
+@p1Base = 420
+@p2Name = "パターンB"
+@p2Time = "8:00"
+@p2Gap = 5
 @p2Count = 10
-@p2Base = 355
+@p2Base = 480
 @p3Name = "日曜日"
 @p3Time = "9:00"
 @p3Gap = 5
@@ -35,12 +35,12 @@
 @p4Gap = 0
 @p4Count = 0
 @p4Base = 0
-@p5Name = "モーニング"
+@p5Name = "パターンD"
 @p5Time = "7:30"
 @p5Gap = 5
 @p5Count = 10
 @p5Base = 450
-@p6Name = "平日登校日"
+@p6Name = "パターンE"
 @p6Time = "6:30"
 @p6Gap = 4
 @p6Count = 10
@@ -52,18 +52,21 @@
 @count = 0
 @offsetMin = 0
 @patName = ""
-@proceed = 0
 
 menu "朝じたく" {
 item "今夜のアラームをセット":
-    @proceed = 0
-
-    @p1Card = "{@p1Name}\n{@p1Time} ・ {@p1Gap}分おき ・ {@p1Count}回"
-    @p2Card = "{@p2Name}\n{@p2Time} ・ {@p2Gap}分おき ・ {@p2Count}回"
-    @p3Card = "{@p3Name}\n{@p3Time} ・ {@p3Gap}分おき ・ {@p3Count}回"
-    @p4Card = "{@p4Name}\nアラームなし"
-    @p5Card = "{@p5Name}\n{@p5Time} ・ {@p5Gap}分おき ・ {@p5Count}回"
-    @p6Card = "{@p6Name}\n{@p6Time} ・ {@p6Gap}分おき ・ {@p6Count}回"
+    @p1Card = "{@p1Name}"
+    if @p1Count > 0 { @p1Card = "{@p1Name}\n{@p1Time} ・ {@p1Gap}分おき ・ {@p1Count}回" } else { @p1Card = "{@p1Name}\nアラームなし" }
+    @p2Card = "{@p2Name}"
+    if @p2Count > 0 { @p2Card = "{@p2Name}\n{@p2Time} ・ {@p2Gap}分おき ・ {@p2Count}回" } else { @p2Card = "{@p2Name}\nアラームなし" }
+    @p3Card = "{@p3Name}"
+    if @p3Count > 0 { @p3Card = "{@p3Name}\n{@p3Time} ・ {@p3Gap}分おき ・ {@p3Count}回" } else { @p3Card = "{@p3Name}\nアラームなし" }
+    @p4Card = "{@p4Name}"
+    if @p4Count > 0 { @p4Card = "{@p4Name}\n{@p4Time} ・ {@p4Gap}分おき ・ {@p4Count}回" } else { @p4Card = "{@p4Name}\nアラームなし" }
+    @p5Card = "{@p5Name}"
+    if @p5Count > 0 { @p5Card = "{@p5Name}\n{@p5Time} ・ {@p5Gap}分おき ・ {@p5Count}回" } else { @p5Card = "{@p5Name}\nアラームなし" }
+    @p6Card = "{@p6Name}"
+    if @p6Count > 0 { @p6Card = "{@p6Name}\n{@p6Time} ・ {@p6Gap}分おき ・ {@p6Count}回" } else { @p6Card = "{@p6Name}\nアラームなし" }
 
     @cardList = list(@p1Card, @p2Card, @p3Card, @p4Card, @p5Card, @p6Card)
     @chosenV = chooseFromList(@cardList, "パターンを選んでください")
@@ -74,67 +77,63 @@ item "今夜のアラームをセット":
         @gap = @p1Gap
         @count = @p1Count
         @patName = @p1Name
-        @proceed = 1
     } else if @chosen == @p2Card {
         @baseMin = @p2Base
         @gap = @p2Gap
         @count = @p2Count
         @patName = @p2Name
-        @proceed = 1
     } else if @chosen == @p3Card {
         @baseMin = @p3Base
         @gap = @p3Gap
         @count = @p3Count
         @patName = @p3Name
-        @proceed = 1
     } else if @chosen == @p4Card {
-        @proceed = 0
-        alert("休日：アラームなしにしました。", "朝じたく")
+        @baseMin = @p4Base
+        @gap = @p4Gap
+        @count = @p4Count
+        @patName = @p4Name
     } else if @chosen == @p5Card {
         @baseMin = @p5Base
         @gap = @p5Gap
         @count = @p5Count
         @patName = @p5Name
-        @proceed = 1
-    } else if @chosen == @p6Card {
+    } else {
         @baseMin = @p6Base
         @gap = @p6Gap
         @count = @p6Count
         @patName = @p6Name
-        @proceed = 1
     }
 
-    if @proceed == 1 {
-        menu "今日だけ時刻をずらしますか？" {
-        item "そのまま":
-            @offsetMin = 0
-        item "+5分":
-            @offsetMin = 5
-        item "+10分":
-            @offsetMin = 10
-        item "+15分":
-            @offsetMin = 15
-        item "+30分":
-            @offsetMin = 30
-        item "-5分":
-            @offsetMin = -5
-        item "-10分":
-            @offsetMin = -10
-        item "-15分":
-            @offsetMin = -15
-        item "-30分":
-            @offsetMin = -30
-        }
+    menu "今日だけ時刻をずらしますか？" {
+    item "そのまま":
+        @offsetMin = 0
+    item "+5分":
+        @offsetMin = 5
+    item "+10分":
+        @offsetMin = 10
+    item "+15分":
+        @offsetMin = 15
+    item "+30分":
+        @offsetMin = 30
+    item "-5分":
+        @offsetMin = -5
+    item "-10分":
+        @offsetMin = -10
+    item "-15分":
+        @offsetMin = -15
+    item "-30分":
+        @offsetMin = -30
+    }
 
-        @alarms = getAlarms()
-        for alarm in @alarms {
-            @rawName = getName(@alarm)
-            @alarmName = getText(@rawName)
-            if @alarmName beginsWith "朝じたく｜" {
-                turnOffAlarm(@alarm, false)
-            }
+    @alarms = getAlarms()
+    for alarm in @alarms {
+        @rawName = getName(@alarm)
+        @alarmName = getText(@rawName)
+        if @alarmName beginsWith "朝じたく｜" {
+            deleteAlarm(@alarm)
         }
-
+    }
+    if @count > 0 {
         @totalBase = @baseMin + @offsetMin
         @made = 0
         repeat i for @count {
@@ -146,39 +145,29 @@ item "今夜のアラームをセット":
             @mmRaw = @hh * 60
             @mm = @thisMin - @mmRaw
             @hhPad = @hh
-            if @hh < 10 { @hhPad = "0{@hh}" }
+            if @hh < 10 {
+                @hhPad = "0{@hh}"
+            }
             @mmPad = @mm
-            if @mm < 10 { @mmPad = "0{@mm}" }
+            if @mm < 10 {
+                @mmPad = "0{@mm}"
+            }
             @timeText = "{@hhPad}:{@mmPad}"
-            @targetName = "朝じたく｜{@patName}｜{@timeText}"
-
-            @found = 0
-            for existing in @alarms {
-                @existingRawName = getName(@existing)
-                @existingName = getText(@existingRawName)
-                if @existingName == @targetName {
-                    turnOnAlarm(@existing, false)
-                    @found = 1
-                }
-            }
-
-            if @found == 0 {
-                createAlarm(@targetName, @timeText, false)
-            }
+            createAlarm("朝じたく｜{@patName}", @timeText, false)
             @made = @made + 1
         }
-
         alert("{@patName} を {@made}件 セットしました。", "朝じたく")
+    } else {
+        alert("休日：アラームなしにしました。", "朝じたく")
     }
-
 item "起きました":
     @alarms2 = getAlarms()
     @stopped = 0
-    for alarm2 in @alarms2 {
-        @rawName2 = getName(@alarm2)
+    for alarm in @alarms2 {
+        @rawName2 = getName(@alarm)
         @alarmName2 = getText(@rawName2)
         if @alarmName2 beginsWith "朝じたく｜" {
-            turnOffAlarm(@alarm2, false)
+            turnOffAlarm(@alarm, false)
             @stopped = @stopped + 1
         }
     }
