@@ -33,7 +33,7 @@ jobs:
           python3 - <<'PYEOF'
           import os, re
           src = "shortcuts/asa_jitaku_native.cherri"
-          patterns = os.environ.get("PATTERNS_CHERRI", "")
+          patterns = os.environ.get("PATTERNS_CHERRI", "").lstrip("\ufeff")
           text = open(src, encoding="utf-8").read()
           if patterns.strip():
               text = re.sub(
@@ -69,7 +69,7 @@ jobs:
           python3 - <<'PYEOF'
           import os, re
           src = "shortcuts/asa_jitaku_cards.cherri"
-          patterns = os.environ.get("PATTERNS_CARDS_CHERRI", "")
+          patterns = os.environ.get("PATTERNS_CARDS_CHERRI", "").lstrip("\ufeff")
           text = open(src, encoding="utf-8").read()
           if patterns.strip():
               text = re.sub(
@@ -104,7 +104,7 @@ jobs:
           python3 - <<'PYEOF'
           import os, re
           src = "shortcuts/asa_jitaku_cards2.cherri"
-          patterns = os.environ.get("PATTERNS_CARDS2_CHERRI", "")
+          patterns = os.environ.get("PATTERNS_CARDS2_CHERRI", "").lstrip("\ufeff")
           text = open(src, encoding="utf-8").read()
           if patterns.strip():
               text = re.sub(
@@ -154,7 +154,7 @@ jobs:
           python3 - <<'PYEOF'
           import os, re
           src = "shortcuts/asa_jitaku_cards3.cherri"
-          patterns = os.environ.get("PATTERNS_CARDS3_CHERRI", "")
+          patterns = os.environ.get("PATTERNS_CARDS3_CHERRI", "").lstrip("\ufeff")
           text = open(src, encoding="utf-8").read()
           if patterns.strip():
               text = re.sub(
@@ -189,7 +189,7 @@ jobs:
           python3 - <<'PYEOF'
           import os, re
           src = "shortcuts/asa_jitaku_native5.cherri"
-          patterns = os.environ.get("PATTERNS_V5_CHERRI", "")
+          patterns = os.environ.get("PATTERNS_V5_CHERRI", "").lstrip("\ufeff")
           text = open(src, encoding="utf-8").read()
           if patterns.strip():
               text = re.sub(
