@@ -34,11 +34,11 @@ item "今夜のアラームをセット":
         @gap = 3
         @count = 15
         @patName = "パシーナ・出勤"
-    item "日曜レッスン":
+    item "日曜":
         @baseMin = 540
         @gap = 5
         @count = 10
-        @patName = "日曜レッスン"
+        @patName = "日曜"
     item "休日":
         @baseMin = 0
         @gap = 0
