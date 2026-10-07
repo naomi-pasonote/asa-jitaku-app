@@ -79,12 +79,18 @@ item "今夜のアラームをセット":
         @offsetMin = -30
     }
     @alarms = getAlarms()
+    @deleteList = []
+    @deleteCount = 0
     for alarm in @alarms {
         @rawName = getName(@alarm)
         @alarmName = getText(@rawName)
         if @alarmName beginsWith "朝じたく｜" {
-            deleteAlarm(@alarm)
+            @deleteList += @alarm
+            @deleteCount = @deleteCount + 1
         }
+    }
+    if @deleteCount > 0 {
+        deleteAlarm(@deleteList)
     }
     if @count > 0 {
         @totalBase = @baseMin + @offsetMin
@@ -115,24 +121,34 @@ item "今夜のアラームをセット":
     }
 item "起きました":
     @alarms2 = getAlarms()
+    @deleteList2 = []
     @stopped = 0
     for alarm in @alarms2 {
         @rawName2 = getName(@alarm)
         @alarmName2 = getText(@rawName2)
         if @alarmName2 beginsWith "朝じたく｜" {
-            deleteAlarm(@alarm)
+            @deleteList2 += @alarm
             @stopped = @stopped + 1
         }
+    }
+    if @stopped > 0 {
+        deleteAlarm(@deleteList2)
     }
     alert("残りの朝じたくアラームを削除しました。", "朝じたく")
 item "テスト（2・4・6分後）":
     @alarms3 = getAlarms()
+    @deleteList3 = []
+    @deleteCount3 = 0
     for alarm in @alarms3 {
         @rawName3 = getName(@alarm)
         @alarmName3 = getText(@rawName3)
         if @alarmName3 beginsWith "朝じたく｜" {
-            deleteAlarm(@alarm)
+            @deleteList3 += @alarm
+            @deleteCount3 = @deleteCount3 + 1
         }
+    }
+    if @deleteCount3 > 0 {
+        deleteAlarm(@deleteList3)
     }
     @now = currentDate()
     @nowHtxt = formatDate(@now, "Custom", "HH")
