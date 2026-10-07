@@ -182,26 +182,6 @@ jobs:
           cp shortcuts/asa-jitaku-cards3.shortcut site/shortcuts/asa-jitaku-cards3.shortcut
           cd site/shortcuts && zip -q asa-jitaku-cards3.zip asa-jitaku-cards3.shortcut && cd -
 
-      - name: Inject patterns for native5 variant (private secret; falls back to public placeholder if unset)
-        env:
-          PATTERNS_V5_CHERRI: ${{ secrets.PATTERNS_V5_CHERRI }}
-        run: |
-          python3 - <<'PYEOF'
-          import os, re
-          src = "shortcuts/asa_jitaku_native5.cherri"
-          patterns = os.environ.get("PATTERNS_V5_CHERRI", "").lstrip("\ufeff")
-          text = open(src, encoding="utf-8").read()
-          if patterns.strip():
-              text = re.sub(
-                  r"/\* PATTERNS_START \*/.*?/\* PATTERNS_END \*/",
-                  "/* PATTERNS_START */\n" + patterns + "    /* PATTERNS_END */",
-                  text, flags=re.S)
-              print("native5 patterns: injected from secret")
-          else:
-              print("native5 patterns: secret not set, using public placeholder")
-          open(src, "w", encoding="utf-8").write(text)
-          PYEOF
-
       - name: Compile native5 shortcut (unsigned)
         run: |
           ./cherri shortcuts/asa_jitaku_native5.cherri --skip-sign
