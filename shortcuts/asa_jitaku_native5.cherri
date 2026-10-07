@@ -8,9 +8,7 @@
 #define version 26
 
 /* このファイルはPublicリポジトリで公開される。
-   個人のパターン名・時刻は含まない。実際の値は、ビルド時に
-   GitHub Actionsのリポジトリ シークレット "PATTERNS_V5_CHERRI" の内容で
-   下の PATTERNS ブロックが自動的に置き換えられてから、コンパイル・署名される。
+   Native5は日本語パターン名の文字化けを避けるため、6パターンをUTF-8で直接保持する。
    AsaJitakuNative4は変更していない(別ファイルとして新規作成)。
    AsaJitakuNative4からの変更点:
    ①「起きました」は停止(オフ)ではなく削除(delete)に変更
@@ -26,36 +24,36 @@ menu "朝じたく" {
 item "今夜のアラームをセット":
     menu "パターンを選んでください" {
     /* PATTERNS_START */
-    item "パターンA":
-        @baseMin = 420
-        @gap = 5
-        @count = 10
-        @patName = "パターンA"
-    item "パターンB":
-        @baseMin = 480
-        @gap = 5
-        @count = 10
-        @patName = "パターンB"
-    item "パターンC":
+    item "東二・出勤":
+        @baseMin = 381
+        @gap = 3
+        @count = 15
+        @patName = "東二・出勤"
+    item "パシーナ・出勤":
+        @baseMin = 351
+        @gap = 3
+        @count = 15
+        @patName = "パシーナ・出勤"
+    item "日曜レッスン":
         @baseMin = 540
         @gap = 5
         @count = 10
-        @patName = "パターンC"
+        @patName = "日曜レッスン"
     item "休日":
         @baseMin = 0
         @gap = 0
         @count = 0
         @patName = "休日"
-    item "パターンD":
+    item "モーニング":
         @baseMin = 450
         @gap = 5
         @count = 10
-        @patName = "パターンD"
-    item "パターンE":
+        @patName = "モーニング"
+    item "平日登校日":
         @baseMin = 390
         @gap = 4
         @count = 10
-        @patName = "パターンE"
+        @patName = "平日登校日"
     /* PATTERNS_END */
     }
     menu "今日だけ時刻をずらしますか？" {
