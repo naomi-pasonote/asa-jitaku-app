@@ -182,6 +182,21 @@ jobs:
           cp shortcuts/asa-jitaku-cards3.shortcut site/shortcuts/asa-jitaku-cards3.shortcut
           cd site/shortcuts && zip -q asa-jitaku-cards3.zip asa-jitaku-cards3.shortcut && cd -
 
+      - name: Compile cards4 shortcut (unsigned)
+        run: |
+          ./cherri shortcuts/asa_jitaku_cards4.cherri --skip-sign
+          ls shortcuts/*_unsigned.shortcut
+
+      - name: Fix missing WFWorkflowName and sign cards4 (HubSign; no share-sheet extension)
+        run: |
+          UNSIGNED=$(ls shortcuts/*_unsigned.shortcut | head -n1)
+          python3 tools/sign_hubsign.py --input "$UNSIGNED" --output shortcuts/asa-jitaku-cards4.shortcut --name AsaJitakuCards4 --no-action-extension
+          test -s shortcuts/asa-jitaku-cards4.shortcut
+          python3 -c "d=open('shortcuts/asa-jitaku-cards4.shortcut','rb').read(); assert d[:4]==b'AEA1', 'not a signed shortcut file'"
+          rm -f shortcuts/*_unsigned.shortcut
+          cp shortcuts/asa-jitaku-cards4.shortcut site/shortcuts/asa-jitaku-cards4.shortcut
+          cd site/shortcuts && zip -q asa-jitaku-cards4.zip asa-jitaku-cards4.shortcut && cd -
+
       - name: Compile native5 shortcut (unsigned)
         run: |
           ./cherri shortcuts/asa_jitaku_native5.cherri --skip-sign
